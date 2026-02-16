@@ -15,6 +15,12 @@
     </Page.Resources>
 
     <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F5F8FF" Offset="0"/>
+                <GradientStop Color="#ECFDF8" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -22,23 +28,9 @@
         </Grid.RowDefinitions>
 
         <!-- Панель фильтров и поиска -->
-        <Border Grid.Row="0" Background="#f0f0f0" Padding="15">
+        <Border Grid.Row="0" Padding="15" Margin="10,10,10,0" Style="{StaticResource CardBorderStyle}">
             <StackPanel Orientation="Horizontal">
-                <ComboBox Name="PositionBox" Width="220" Height="35" Margin="10" FontSize="14" SelectionChanged="PositionBox_SelectionChanged">
-                    <ComboBoxItem Content="Все должности"/>
-                    <ComboBoxItem Content="Машинист"/>
-                    <ComboBoxItem Content="Диспетчер"/>
-                    <ComboBoxItem Content="Проводник"/>
-                    <ComboBoxItem Content="Ремонтник подвижного состава"/>
-                    <ComboBoxItem Content="Ремонтник путей"/>
-                    <ComboBoxItem Content="Кассир"/>
-                    <ComboBoxItem Content="Работник службы подготовки составов"/>
-                    <ComboBoxItem Content="Работник справочной службы"/>
-                    <ComboBoxItem Content="Начальник вокзала"/>
-                    <ComboBoxItem Content="Дежурный по станции"/>
-                    <ComboBoxItem Content="Уборщик"/>
-                    <ComboBoxItem Content="Охранник"/>
-                </ComboBox>
+                <ComboBox Name="PositionBox" Width="240" Margin="10" SelectionChanged="PositionBox_SelectionChanged" ToolTip="Фильтр по должности"/>
 
                 <ComboBox Name="Sort" Width="220" Height="35" Margin="10" FontSize="14" SelectionChanged="Sort_SelectionChanged">
                     <ComboBoxItem Content="Без сортировки"/>
@@ -50,20 +42,22 @@
                     <ComboBoxItem Content="По возрасту (убывание)"/>
                 </ComboBox>
 
-                <TextBox Name="Search" Margin="10" Width="300" Height="35" FontSize="14" 
+                <TextBox Name="Search" Margin="10" Width="360" FontSize="14"
                          TextChanged="SearchTBox_TextChanged" Padding="8"
                          ToolTip="Поиск по ФИО, телефону, адресу, документам"/>
+
+                <Button Name="ResetFiltersBtn" Content="Сбросить" Width="130" Height="35" Margin="10"
+                        Background="#64748B" Click="ResetFiltersBtn_Click" ToolTip="Сбросить фильтры и поиск"/>
             </StackPanel>
         </Border>
 
         <!-- Список сотрудников -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="8,10,8,0">
             <ListView Name="ServiceListView" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       BorderThickness="0" Background="Transparent">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#ddd" BorderThickness="0,0,0,2" Padding="20" Margin="0,8,10,8" Background="White"
-                                CornerRadius="8">
+                        <Border BorderBrush="#CFE0FF" BorderThickness="1" Padding="20" Margin="0,8,6,8" Background="White" CornerRadius="14">
                             <Grid Width="1200" Margin="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
@@ -95,13 +89,13 @@
 
                                 <!-- Основная информация -->
                                 <StackPanel Grid.Column="1" Margin="0,0,20,0">
-                                    <TextBlock Text="{Binding Employee.FullName, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Employee.FullName, Mode=OneWay}"
                                                FontSize="16" FontWeight="Bold" Margin="0,0,0,6" Foreground="#2c3e50"/>
-                                    <TextBlock Text="{Binding Position.PositionName, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Position.PositionName, Mode=OneWay}"
                                                FontSize="14" Foreground="#3498db" Margin="0,0,0,4"/>
-                                    <TextBlock Text="{Binding Employee.Gender, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Employee.Gender, Mode=OneWay}"
                                                FontSize="13" Margin="0,0,0,3"/>
-                                    <TextBlock Text="{Binding Employee.Phone, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Employee.Phone, Mode=OneWay}"
                                                FontSize="13" Margin="0,0,0,5"/>
 
                                     <TextBlock FontSize="13" Margin="0,0,0,3">
@@ -129,21 +123,21 @@
 
                                 <!-- Паспортные данные и документы -->
                                 <StackPanel Grid.Column="2" Margin="0,0,20,0">
-                                    <TextBlock Text="Паспортные данные" FontSize="14" FontWeight="Bold" 
+                                    <TextBlock Text="Паспортные данные" FontSize="14" FontWeight="Bold"
                                                Margin="0,0,0,6" Foreground="#2c3e50"/>
-                                    <TextBlock Text="{Binding Document.PassportData, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Document.PassportData, Mode=OneWay}"
                                                FontSize="13" Margin="0,0,0,3"/>
-                                    <TextBlock Text="{Binding Document.PassportIssuedBy, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Document.PassportIssuedBy, Mode=OneWay}"
                                                FontSize="12" Foreground="#666" Margin="0,0,0,3"/>
-                                    <TextBlock Text="{Binding Document.PassportIssueDate, StringFormat={}Выдан: {0:dd.MM.yyyy}, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Document.PassportIssueDate, StringFormat={}Выдан: {0:dd.MM.yyyy}, Mode=OneWay}"
                                                FontSize="12" Margin="0,0,0,6"/>
 
-                                    <TextBlock Text="Адрес регистрации" FontSize="14" FontWeight="Bold" 
+                                    <TextBlock Text="Адрес регистрации" FontSize="14" FontWeight="Bold"
                                                Margin="0,6,0,4" Foreground="#2c3e50"/>
-                                    <TextBlock Text="{Binding Employee.Registration, Mode=OneWay}" 
+                                    <TextBlock Text="{Binding Employee.Registration, Mode=OneWay}"
                                                FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
 
-                                    <TextBlock Text="Документы" FontSize="14" FontWeight="Bold" 
+                                    <TextBlock Text="Документы" FontSize="14" FontWeight="Bold"
                                                Margin="0,6,0,4" Foreground="#2c3e50"/>
                                     <TextBlock FontSize="12" Margin="0,0,0,2">
                                         <Run Text="ИНН: " FontWeight="SemiBold"/>
@@ -161,7 +155,7 @@
 
                                 <!-- Образование -->
                                 <StackPanel Grid.Column="3" Margin="0,0,15,0">
-                                    <TextBlock Text="Образование" FontSize="14" FontWeight="Bold" 
+                                    <TextBlock Text="Образование" FontSize="14" FontWeight="Bold"
                                                Margin="0,0,0,6" Foreground="#2c3e50"/>
                                     <Border BorderBrush="#eee" BorderThickness="1" CornerRadius="4" Background="#fafafa"
                                             MaxHeight="150">
@@ -188,7 +182,7 @@
 
                                 <!-- Кнопки действий -->
                                 <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="5,0,0,0">
-                                    <Button Name="EditBtn" Content="Редактировать" Click="EditBtn_Click" 
+                                    <Button Name="EditBtn" Content="Редактировать" Click="EditBtn_Click"
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
                                             Background="#3498db" Foreground="White" BorderThickness="0"
                                             Tag="{Binding}"/>
@@ -204,6 +198,10 @@
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
                                             Background="#f39c12" Foreground="White" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Управление образованием"/>
+                                    <Button Name="HrBtn" Content="Кадры" Click="HrBtn_Click"
+                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Background="#8e44ad" Foreground="White" BorderThickness="0"
+                                            Tag="{Binding}" ToolTip="Отпуска, должности, PDF-приказы"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -213,18 +211,19 @@
         </ScrollViewer>
 
         <!-- Панель управления -->
-        <Border Grid.Row="2" Background="#f5f5f5" Padding="15">
+        <Border Grid.Row="2" Padding="15" Margin="10" Style="{StaticResource CardBorderStyle}">
             <StackPanel Orientation="Horizontal">
-                <Button Name="Addbtn" Content="Добавить сотрудника" Click="Addbtn_Click" 
+                <Button Name="Addbtn" Content="Добавить сотрудника" Click="Addbtn_Click"
                         Width="160" Height="35" FontSize="14" FontWeight="Bold"
-                        Background="#4CAF50" Foreground="White" Margin="0,0,20,0"/>
+                        Background="#14B8A6" Foreground="White" Margin="0,0,20,0"/>
 
                 <Button Name="ManageCrewsBtn" Content="Управление бригадами" Click="ManageCrewsBtn_Click"
                         Width="170" Height="35" FontSize="14" FontWeight="Bold"
-                        Background="#2196F3" Foreground="White" Margin="0,0,20,0"/>
+                        Background="#5B6CFF" Foreground="White" Margin="0,0,20,0"/>
 
-                <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="20,0,10,0" FontSize="14"/>
-                <ComboBox Name="CountPeopleCBox" Width="100" Height="30" FontSize="12" 
+                <TextBlock x:Name="RecordsInfoText" Text="Найдено сотрудников: 0" VerticalAlignment="Center" Margin="10,0,20,0" FontSize="14" FontWeight="SemiBold" Foreground="#1e293b"/>
+                <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="10,0,10,0" FontSize="14"/>
+                <ComboBox Name="CountPeopleCBox" Width="100" Height="30" FontSize="12"
                           SelectionChanged="CountPeopleCBox_SelectionChanged">
                     <ComboBoxItem Content="5"/>
                     <ComboBoxItem Content="15"/>

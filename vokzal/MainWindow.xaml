@@ -5,16 +5,59 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vokzal"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" FontFamily="Tw Cen MT" Icon="Resources/logo.png">
+        Title="ЖД Вокзал • Управление персоналом" Height="900" Width="1450"
+        MinHeight="760" MinWidth="1200" Icon="Resources/logo.png">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="92"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image Source="Resources/logo.png" HorizontalAlignment="Left"></Image>
-        <TextBlock Text="ЖД Вокзал" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-        <Frame Grid.Row="1" Name="MainFrame" ContentRendered="MainFrame_ContentRendered" NavigationUIVisibility="Hidden"></Frame>
-        <Button Content="Назад" Name="BtnBack" Width="160" Height="30" FontSize="20" HorizontalAlignment="Right" Margin="55 5" Click="BtnBack_Click"></Button>
+
+        <Border Margin="14,12,14,0" CornerRadius="18" BorderBrush="#D4E4FF" BorderThickness="1">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#5B6CFF" Offset="0"/>
+                    <GradientStop Color="#14B8A6" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="18,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Background="#25FFFFFF" CornerRadius="12" Padding="8" Margin="0,0,14,0">
+                    <Image Source="Resources/logo.png" Width="50" Height="50"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="ЖД Вокзал" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Управление сотрудниками, документами и кадровыми процессами"
+                               FontSize="13" Foreground="#E2E8F0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#25FFFFFF" CornerRadius="999" Padding="10,4" Margin="0,0,10,0">
+                        <TextBlock Text="HR" Foreground="White" FontWeight="SemiBold"/>
+                    </Border>
+                    <Button Content="← Назад" Name="BtnBack" Width="120" Height="36"
+                            VerticalAlignment="Center" Click="BtnBack_Click" Visibility="Collapsed"
+                            Background="#1E293B"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Frame Grid.Row="1" Name="MainFrame" ContentRendered="MainFrame_ContentRendered"
+               NavigationUIVisibility="Hidden" Margin="14,12,14,8"/>
+
+        <Border Grid.Row="2" Margin="14,0,14,12" Style="{StaticResource CardBorderStyle}" Padding="14,9">
+            <DockPanel>
+                <TextBlock Text="Подсказка: для отпусков и истории должностей используйте кнопку «Кадры» в карточке сотрудника"
+                           FontSize="12" Foreground="{StaticResource MutedTextBrush}" DockPanel.Dock="Left"/>
+                <TextBlock Text="v2" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Right"/>
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>
