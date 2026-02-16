@@ -3,16 +3,17 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Документы сотрудника">
 
-    <Grid Margin="16">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Binding EmployeeName}" FontSize="30" FontWeight="Bold" Margin="0,0,0,12"/>
+        <TextBlock Grid.Row="0" Text="{Binding EmployeeName}" FontSize="32" FontWeight="Bold" Margin="0,0,0,14"/>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Border Style="{StaticResource CardBorderStyle}" Padding="12" MaxWidth="1150" HorizontalAlignment="Center">
             <GroupBox Header="Документы сотрудника" Padding="14">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -24,7 +25,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="220"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
@@ -47,6 +48,7 @@
                     <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CurrentDocument.MedicalPolicy}" Margin="0,5"/>
                 </Grid>
             </GroupBox>
+            </Border>
         </ScrollViewer>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">

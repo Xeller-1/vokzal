@@ -13,6 +13,8 @@ namespace vokzal
 
         private List<EmployeeDisplayItem> _fullList = new List<EmployeeDisplayItem>();
         private List<EmployeeDisplayItem> _filteredList = new List<EmployeeDisplayItem>();
+        private int _currentPage = 1;
+        private int _totalPages = 1;
 
         public ServicePage()
         {
@@ -72,6 +74,7 @@ namespace vokzal
                     EducationList = emp.Education.ToList()
                 }).ToList();
 
+                _currentPage = 1;
                 _filteredList = ApplyFilters(_fullList);
                 ApplyPagination();
             }
@@ -138,15 +141,38 @@ namespace vokzal
             {
                 ServiceListView.ItemsSource = null;
                 RecordsInfoText.Text = "Найдено сотрудников: 0";
+                PageInfoText.Text = "Страница 1/1";
+                PrevPageBtn.IsEnabled = false;
+                NextPageBtn.IsEnabled = false;
                 return;
             }
 
             var recordsCount = _filteredList.Count;
             var itemsPerPage = GetItemsPerPage(recordsCount);
-            var pagedData = _filteredList.Take(itemsPerPage).ToList();
+
+            if (itemsPerPage <= 0)
+            {
+                itemsPerPage = recordsCount == 0 ? 1 : recordsCount;
+            }
+
+            _totalPages = Math.Max(1, (int)Math.Ceiling(recordsCount / (double)itemsPerPage));
+            if (_currentPage > _totalPages)
+            {
+                _currentPage = _totalPages;
+            }
+            if (_currentPage < 1)
+            {
+                _currentPage = 1;
+            }
+
+            var skip = (_currentPage - 1) * itemsPerPage;
+            var pagedData = _filteredList.Skip(skip).Take(itemsPerPage).ToList();
 
             ServiceListView.ItemsSource = pagedData;
             RecordsInfoText.Text = $"Найдено сотрудников: {recordsCount}";
+            PageInfoText.Text = $"Страница {_currentPage}/{_totalPages}";
+            PrevPageBtn.IsEnabled = _currentPage > 1;
+            NextPageBtn.IsEnabled = _currentPage < _totalPages;
         }
 
         private int GetItemsPerPage(int recordsCount)
@@ -208,6 +234,7 @@ namespace vokzal
 
         private void CountPeopleCBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            _currentPage = 1;
             ApplyPagination();
         }
 
@@ -227,18 +254,21 @@ namespace vokzal
 
         private void PositionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            _currentPage = 1;
             _filteredList = ApplyFilters(_fullList);
             ApplyPagination();
         }
 
         private void SearchTBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            _currentPage = 1;
             _filteredList = ApplyFilters(_fullList);
             ApplyPagination();
         }
 
         private void Sort_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            _currentPage = 1;
             _filteredList = ApplyFilters(_fullList);
             ApplyPagination();
         }
@@ -282,8 +312,27 @@ namespace vokzal
             PositionBox.SelectedIndex = 0;
             CountPeopleCBox.SelectedIndex = 3;
 
+            _currentPage = 1;
             _filteredList = ApplyFilters(_fullList);
             ApplyPagination();
+        }
+
+        private void PrevPageBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                ApplyPagination();
+            }
+        }
+
+        private void NextPageBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage < _totalPages)
+            {
+                _currentPage++;
+                ApplyPagination();
+            }
         }
 
         private sealed class PositionFilterItem

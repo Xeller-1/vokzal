@@ -185,23 +185,23 @@
                                 <!-- Кнопки действий -->
                                 <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="12,0,0,0" HorizontalAlignment="Right">
                                     <Button Name="EditBtn" Content="Редактировать" Click="EditBtn_Click"
-                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Width="130" Height="32" Margin="0,5" FontSize="14" FontWeight="SemiBold"
                                             Background="#3498db" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}"/>
                                     <Button Name="DeleteBtn" Content="Удалить" Click="DeleteBtn_Click"
-                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Width="130" Height="32" Margin="0,5" FontSize="14" FontWeight="SemiBold"
                                             Background="#e74c3c" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}"/>
                                     <Button Name="DocumentsBtn" Content="Документы" Click="DocumentsBtn_Click"
-                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Width="130" Height="32" Margin="0,5" FontSize="14" FontWeight="SemiBold"
                                             Background="#27ae60" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Управление документами"/>
                                     <Button Name="EducationBtn" Content="Образование" Click="EducationBtn_Click"
-                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Width="130" Height="32" Margin="0,5" FontSize="14" FontWeight="SemiBold"
                                             Background="#f39c12" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Управление образованием"/>
                                     <Button Name="HrBtn" Content="Кадры" Click="HrBtn_Click"
-                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Width="130" Height="32" Margin="0,5" FontSize="14" FontWeight="SemiBold"
                                             Background="#8e44ad" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Отпуска, должности, PDF-приказы"/>
                                 </StackPanel>
@@ -213,25 +213,31 @@
 
         <!-- Панель управления -->
         <Border Grid.Row="2" Padding="15" Margin="10" Style="{StaticResource CardBorderStyle}">
-            <StackPanel Orientation="Horizontal">
+            <WrapPanel>
                 <Button Name="Addbtn" Content="Добавить сотрудника" Click="Addbtn_Click"
-                        Width="160" Height="35" FontSize="14" FontWeight="Bold"
-                        Background="#D71920" Foreground="White" Margin="0,0,20,0"/>
+                        Width="190" Height="40" FontSize="15" FontWeight="Bold"
+                        Background="#D71920" Foreground="White" Margin="0,0,14,8"/>
 
                 <Button Name="ManageCrewsBtn" Content="Управление бригадами" Click="ManageCrewsBtn_Click"
-                        Width="170" Height="35" FontSize="14" FontWeight="Bold"
-                        Background="#374151" Foreground="White" Margin="0,0,20,0"/>
+                        Width="200" Height="40" FontSize="15" FontWeight="Bold"
+                        Background="#374151" Foreground="White" Margin="0,0,14,8"/>
 
-                <TextBlock x:Name="RecordsInfoText" Text="Найдено сотрудников: 0" VerticalAlignment="Center" Margin="10,0,20,0" FontSize="14" FontWeight="SemiBold" Foreground="#1F2937"/>
-                <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="10,0,10,0" FontSize="14"/>
-                <ComboBox Name="CountPeopleCBox" Width="100" Height="30" FontSize="12"
-                          SelectionChanged="CountPeopleCBox_SelectionChanged">
+                <TextBlock x:Name="RecordsInfoText" Text="Найдено сотрудников: 0" VerticalAlignment="Center" Margin="6,6,14,0" FontSize="15" FontWeight="SemiBold" Foreground="#1F2937"/>
+                <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="0,6,8,0" FontSize="15"/>
+                <ComboBox Name="CountPeopleCBox" Width="110" Height="34" FontSize="15"
+                          SelectionChanged="CountPeopleCBox_SelectionChanged" Margin="0,0,14,8">
                     <ComboBoxItem Content="5"/>
                     <ComboBoxItem Content="15"/>
                     <ComboBoxItem Content="30"/>
                     <ComboBoxItem Content="Все"/>
                 </ComboBox>
-            </StackPanel>
+
+                <Button x:Name="PrevPageBtn" Content="◀ Назад" Width="120" Height="40" Margin="0,0,8,8"
+                        Background="#6B7280" Click="PrevPageBtn_Click"/>
+                <TextBlock x:Name="PageInfoText" Text="Страница 1/1" VerticalAlignment="Center" Margin="0,6,8,0" FontSize="15" FontWeight="SemiBold"/>
+                <Button x:Name="NextPageBtn" Content="Вперед ▶" Width="120" Height="40" Margin="0,0,0,8"
+                        Background="#6B7280" Click="NextPageBtn_Click"/>
+            </WrapPanel>
         </Border>
     </Grid>
 </Page>
