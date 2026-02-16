@@ -8,19 +8,29 @@ namespace vokzal
 {
     public static class HrDataService
     {
-        private static readonly string DataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-        private static readonly string DataPath = Path.Combine(DataDirectory, "hr-data.json");
+        private const string DataFileName = "hr-data.json";
+
+        private static readonly string LegacyDataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+        private static readonly string LegacyDataPath = Path.Combine(LegacyDataDirectory, DataFileName);
+
+        private static readonly string UserDataDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "vokzal",
+            "Data");
+        private static readonly string UserDataPath = Path.Combine(UserDataDirectory, DataFileName);
 
         public static HrDataContainer Load()
         {
             try
             {
-                if (!File.Exists(DataPath))
+                EnsureDataLocation();
+
+                if (!File.Exists(UserDataPath))
                 {
                     return new HrDataContainer();
                 }
 
-                var json = File.ReadAllText(DataPath, Encoding.UTF8);
+                var json = File.ReadAllText(UserDataPath, Encoding.UTF8);
                 if (string.IsNullOrWhiteSpace(json))
                 {
                     return new HrDataContainer();
@@ -37,10 +47,11 @@ namespace vokzal
 
         public static void Save(HrDataContainer data)
         {
-            Directory.CreateDirectory(DataDirectory);
+            EnsureDataLocation();
+
             var serializer = new JavaScriptSerializer();
             var json = serializer.Serialize(data);
-            File.WriteAllText(DataPath, json, Encoding.UTF8);
+            File.WriteAllText(UserDataPath, json, Encoding.UTF8);
         }
 
         public static bool HasVacationOverlap(int employeeId, DateTime startDate, DateTime endDate)
@@ -50,6 +61,16 @@ namespace vokzal
                 v.EmployeeId == employeeId &&
                 startDate <= v.EndDate &&
                 endDate >= v.StartDate);
+        }
+
+        private static void EnsureDataLocation()
+        {
+            Directory.CreateDirectory(UserDataDirectory);
+
+            if (!File.Exists(UserDataPath) && File.Exists(LegacyDataPath))
+            {
+                File.Copy(LegacyDataPath, UserDataPath, false);
+            }
         }
     }
 }

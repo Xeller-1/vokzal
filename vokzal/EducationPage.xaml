@@ -3,63 +3,76 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Образование сотрудника">
 
-    <Grid Margin="10">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Binding EmployeeName}" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="{Binding EmployeeName}" FontSize="32" FontWeight="Bold" Margin="0,0,0,14"/>
 
-        <ListView Grid.Row="1" Name="EducationListView" Margin="0,0,0,10"
-          SelectionChanged="EducationListView_SelectionChanged">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Уровень" DisplayMemberBinding="{Binding EducationLevel}" Width="150"/>
-                    <GridViewColumn Header="Учебное заведение" DisplayMemberBinding="{Binding InstitutionName}" Width="300"/>
-                    <GridViewColumn Header="Год окончания" DisplayMemberBinding="{Binding GraduationYear}" Width="120"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
-        <GroupBox Grid.Row="2" Header="Добавить/Редактировать образование" Padding="10">
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}" Padding="12" Margin="0,0,0,12">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Уровень:" Margin="5" VerticalAlignment="Center"/>
-                <ComboBox Grid.Row="0" Grid.Column="1" Name="EducationLevelComboBox" Margin="5" Height="25">
-                    <ComboBoxItem Content="Среднее"/>
-                    <ComboBoxItem Content="Среднее специальное"/>
-                    <ComboBoxItem Content="Высшее"/>
-                    <ComboBoxItem Content="Неоконченное высшее"/>
-                    <ComboBoxItem Content="Аспирантура"/>
-                    <ComboBoxItem Content="Докторантура"/>
-                </ComboBox>
+                <ListView Grid.Row="0" Name="EducationListView" Margin="0,0,0,12"
+                          SelectionChanged="EducationListView_SelectionChanged"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Уровень" DisplayMemberBinding="{Binding EducationLevel}" Width="220"/>
+                            <GridViewColumn Header="Учебное заведение" DisplayMemberBinding="{Binding InstitutionName}" Width="520"/>
+                            <GridViewColumn Header="Год окончания" DisplayMemberBinding="{Binding GraduationYear}" Width="170"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Учебное заведение:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Name="InstitutionTBox" Margin="5" Height="25"/>
+                <GroupBox Grid.Row="1" Header="Добавить/Редактировать образование" Padding="12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Год окончания:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="2" Grid.Column="1" Name="GraduationYearTBox" Margin="5" Height="25" ToolTip="Год от 1900 до текущего"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Уровень:" Margin="0,8" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" Name="EducationLevelComboBox" Margin="0,5">
+                            <ComboBoxItem Content="Среднее"/>
+                            <ComboBoxItem Content="Среднее специальное"/>
+                            <ComboBoxItem Content="Высшее"/>
+                            <ComboBoxItem Content="Неоконченное высшее"/>
+                            <ComboBoxItem Content="Аспирантура"/>
+                            <ComboBoxItem Content="Докторантура"/>
+                        </ComboBox>
 
-                <StackPanel Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Orientation="Vertical" Margin="10,0,0,0">
-                    <Button Name="AddEducationBtn" Content="Добавить" Click="AddEducationBtn_Click" Width="100" Margin="0,5"/>
-                    <Button Name="UpdateEducationBtn" Content="Обновить" Click="UpdateEducationBtn_Click" Width="100" Margin="0,5"/>
-                    <Button Name="DeleteEducationBtn" Content="Удалить" Click="DeleteEducationBtn_Click" Width="100" Margin="0,5"/>
-                    <Button Name="ClearFormBtn" Content="Очистить" Click="ClearFormBtn_Click" Width="100" Margin="0,5"/>
-                </StackPanel>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Учебное заведение:" Margin="0,8" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Name="InstitutionTBox" Margin="0,5"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Год окончания:" Margin="0,8" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Name="GraduationYearTBox" Margin="0,5" ToolTip="Год от 1900 до текущего"/>
+
+                        <WrapPanel Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Margin="12,0,0,0">
+                            <Button Name="AddEducationBtn" Content="Добавить" Click="AddEducationBtn_Click" Width="130" Margin="0,0,8,8"/>
+                            <Button Name="UpdateEducationBtn" Content="Обновить" Click="UpdateEducationBtn_Click" Width="130" Margin="0,0,8,8" Background="#2563EB"/>
+                            <Button Name="DeleteEducationBtn" Content="Удалить" Click="DeleteEducationBtn_Click" Width="130" Margin="0,0,8,8" Background="#DC2626"/>
+                            <Button Name="ClearFormBtn" Content="Очистить" Click="ClearFormBtn_Click" Width="130" Margin="0,0,0,8" Background="#6B7280"/>
+                        </WrapPanel>
+                    </Grid>
+                </GroupBox>
             </Grid>
-        </GroupBox>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Назад" Width="130" Click="Back_Click" Background="#6B7280"/>
+        </StackPanel>
     </Grid>
 </Page>

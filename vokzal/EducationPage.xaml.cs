@@ -16,6 +16,7 @@ namespace vokzal
         {
             InitializeComponent();
             _currentEmployee = employee;
+            DataContext = this;
             LoadEducations();
             ClearForm();
         }
@@ -234,6 +235,11 @@ namespace vokzal
             }
 
             return true;
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Manager.MainFrame.GoBack();
         }
 
         private void ClearForm()
