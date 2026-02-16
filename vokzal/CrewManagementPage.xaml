@@ -1,0 +1,37 @@
+﻿<Page x:Class="vokzal.CrewManagementPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Управление бригадами"
+      Loaded="Page_Loaded">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Управление бригадами поездов" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <ListView Name="CrewListView" Grid.Row="1" Margin="0,0,0,10">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Сотрудник" DisplayMemberBinding="{Binding Employees.FullName}" Width="200"/>
+                    <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding Employees.Positions.PositionName}" Width="180"/>
+                    <GridViewColumn Header="Поезд" DisplayMemberBinding="{Binding Trains.TrainNumber}" Width="100"/>
+                    <GridViewColumn Header="Телефон" DisplayMemberBinding="{Binding Employees.Phone}" Width="120"/>
+                    <GridViewColumn Header="Опыт" DisplayMemberBinding="{Binding Employees.Experience}" Width="80"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Name="AddCrewBtn" Content="Добавить" Click="AddCrewBtn_Click" Width="100" Margin="5"
+                   Background="#4CAF50" Foreground="White"/>
+            <Button Name="EditCrewBtn" Content="Редактировать" Click="EditCrewBtn_Click" Width="100" Margin="5"
+                   Background="#2196F3" Foreground="White"/>
+            <Button Name="DeleteCrewBtn" Content="Удалить" Click="DeleteCrewBtn_Click" Width="100" Margin="5"
+                   Background="#f44336" Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</Page>

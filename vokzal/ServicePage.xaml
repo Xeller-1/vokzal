@@ -1,0 +1,237 @@
+﻿<Page x:Class="vokzal.ServicePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:vokzal"
+      mc:Ignorable="d"
+      d:DesignHeight="800" d:DesignWidth="1400"
+      Title="Сотрудники"
+      Loaded="Page_Loaded">
+
+    <Page.Resources>
+        <local:ExperienceConverter x:Key="ExperienceConverter"/>
+        <local:AgeConverter x:Key="AgeConverter"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Панель фильтров и поиска -->
+        <Border Grid.Row="0" Background="#f0f0f0" Padding="15">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox Name="PositionBox" Width="220" Height="35" Margin="10" FontSize="14" SelectionChanged="PositionBox_SelectionChanged">
+                    <ComboBoxItem Content="Все должности"/>
+                    <ComboBoxItem Content="Машинист"/>
+                    <ComboBoxItem Content="Диспетчер"/>
+                    <ComboBoxItem Content="Проводник"/>
+                    <ComboBoxItem Content="Ремонтник подвижного состава"/>
+                    <ComboBoxItem Content="Ремонтник путей"/>
+                    <ComboBoxItem Content="Кассир"/>
+                    <ComboBoxItem Content="Работник службы подготовки составов"/>
+                    <ComboBoxItem Content="Работник справочной службы"/>
+                    <ComboBoxItem Content="Начальник вокзала"/>
+                    <ComboBoxItem Content="Дежурный по станции"/>
+                    <ComboBoxItem Content="Уборщик"/>
+                    <ComboBoxItem Content="Охранник"/>
+                </ComboBox>
+
+                <ComboBox Name="Sort" Width="220" Height="35" Margin="10" FontSize="14" SelectionChanged="Sort_SelectionChanged">
+                    <ComboBoxItem Content="Без сортировки"/>
+                    <ComboBoxItem Content="По фамилии (А-Я)"/>
+                    <ComboBoxItem Content="По фамилии (Я-А)"/>
+                    <ComboBoxItem Content="По опыту (возрастание)"/>
+                    <ComboBoxItem Content="По опыту (убывание)"/>
+                    <ComboBoxItem Content="По возрасту (возрастание)"/>
+                    <ComboBoxItem Content="По возрасту (убывание)"/>
+                </ComboBox>
+
+                <TextBox Name="Search" Margin="10" Width="300" Height="35" FontSize="14" 
+                         TextChanged="SearchTBox_TextChanged" Padding="8"
+                         ToolTip="Поиск по ФИО, телефону, адресу, документам"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Список сотрудников -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ListView Name="ServiceListView" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      BorderThickness="0" Background="Transparent">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#ddd" BorderThickness="0,0,0,2" Padding="20" Margin="0,8,10,8" Background="White"
+                                CornerRadius="8">
+                            <Grid Width="1200" Margin="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <!-- Фото -->
+                                    <ColumnDefinition Width="300"/>
+                                    <!-- Основная информация -->
+                                    <ColumnDefinition Width="350"/>
+                                    <!-- Паспортные данные -->
+                                    <ColumnDefinition Width="250"/>
+                                    <!-- Образование -->
+                                    <ColumnDefinition Width="140"/>
+                                    <!-- Кнопки -->
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Фото -->
+                                <Border Grid.Column="0" Margin="0,0,15,0" BorderBrush="#ccc" BorderThickness="1"
+                                        Background="#f9f9f9" CornerRadius="6" Padding="3">
+                                    <Image Width="140" Height="140" Stretch="UniformToFill" VerticalAlignment="Center"
+                                           HorizontalAlignment="Center">
+                                        <Image.Source>
+                                            <Binding Path="Employee.Photo" Mode="OneWay">
+                                                <Binding.TargetNullValue>
+                                                    <ImageSource>/Resources/service.png</ImageSource>
+                                                </Binding.TargetNullValue>
+                                            </Binding>
+                                        </Image.Source>
+                                    </Image>
+                                </Border>
+
+                                <!-- Основная информация -->
+                                <StackPanel Grid.Column="1" Margin="0,0,20,0">
+                                    <TextBlock Text="{Binding Employee.FullName, Mode=OneWay}" 
+                                               FontSize="16" FontWeight="Bold" Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                    <TextBlock Text="{Binding Position.PositionName, Mode=OneWay}" 
+                                               FontSize="14" Foreground="#3498db" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding Employee.Gender, Mode=OneWay}" 
+                                               FontSize="13" Margin="0,0,0,3"/>
+                                    <TextBlock Text="{Binding Employee.Phone, Mode=OneWay}" 
+                                               FontSize="13" Margin="0,0,0,5"/>
+
+                                    <TextBlock FontSize="13" Margin="0,0,0,3">
+                                        <Run Text="Рождение: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Employee.BirthDate, StringFormat={}{0:dd.MM.yyyy}, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="13" Margin="0,0,0,3">
+                                        <Run Text="Прием: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Employee.HireDate, StringFormat={}{0:dd.MM.yyyy}, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="13" Margin="0,0,0,3">
+                                        <Run Text="Адрес: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Employee.Address, Mode=OneWay}"/>
+                                    </TextBlock>
+
+                                    <TextBlock FontSize="13" Margin="0,0,0,3">
+                                        <Run Text="Опыт: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Employee.Experience, Converter={StaticResource ExperienceConverter}, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="13" Margin="0,0,0,0">
+                                        <Run Text="Возраст: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Employee.Age, Mode=OneWay, Converter={StaticResource AgeConverter}}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Паспортные данные и документы -->
+                                <StackPanel Grid.Column="2" Margin="0,0,20,0">
+                                    <TextBlock Text="Паспортные данные" FontSize="14" FontWeight="Bold" 
+                                               Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                    <TextBlock Text="{Binding Document.PassportData, Mode=OneWay}" 
+                                               FontSize="13" Margin="0,0,0,3"/>
+                                    <TextBlock Text="{Binding Document.PassportIssuedBy, Mode=OneWay}" 
+                                               FontSize="12" Foreground="#666" Margin="0,0,0,3"/>
+                                    <TextBlock Text="{Binding Document.PassportIssueDate, StringFormat={}Выдан: {0:dd.MM.yyyy}, Mode=OneWay}" 
+                                               FontSize="12" Margin="0,0,0,6"/>
+
+                                    <TextBlock Text="Адрес регистрации" FontSize="14" FontWeight="Bold" 
+                                               Margin="0,6,0,4" Foreground="#2c3e50"/>
+                                    <TextBlock Text="{Binding Employee.Registration, Mode=OneWay}" 
+                                               FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
+
+                                    <TextBlock Text="Документы" FontSize="14" FontWeight="Bold" 
+                                               Margin="0,6,0,4" Foreground="#2c3e50"/>
+                                    <TextBlock FontSize="12" Margin="0,0,0,2">
+                                        <Run Text="ИНН: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Document.INN, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="12" Margin="0,0,0,2">
+                                        <Run Text="СНИЛС: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Document.SNILS, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="12" Margin="0,0,0,0">
+                                        <Run Text="Полис: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding Document.MedicalPolicy, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Образование -->
+                                <StackPanel Grid.Column="3" Margin="0,0,15,0">
+                                    <TextBlock Text="Образование" FontSize="14" FontWeight="Bold" 
+                                               Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                    <Border BorderBrush="#eee" BorderThickness="1" CornerRadius="4" Background="#fafafa"
+                                            MaxHeight="150">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="3">
+                                            <ItemsControl ItemsSource="{Binding EducationList}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border BorderBrush="#e0e0e0" BorderThickness="0,0,0,1" Padding="5,3">
+                                                            <TextBlock FontSize="11" TextWrapping="Wrap">
+                                                                <Run Text="{Binding EducationLevel, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                <LineBreak/>
+                                                                <Run Text="{Binding InstitutionName, Mode=OneWay}"/>
+                                                                <LineBreak/>
+                                                                <Run Text="Год: "/>
+                                                                <Run Text="{Binding GraduationYear, Mode=OneWay}"/>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Кнопки действий -->
+                                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="5,0,0,0">
+                                    <Button Name="EditBtn" Content="Редактировать" Click="EditBtn_Click" 
+                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Background="#3498db" Foreground="White" BorderThickness="0"
+                                            Tag="{Binding}"/>
+                                    <Button Name="DeleteBtn" Content="Удалить" Click="DeleteBtn_Click"
+                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Background="#e74c3c" Foreground="White" BorderThickness="0"
+                                            Tag="{Binding}"/>
+                                    <Button Name="DocumentsBtn" Content="Документы" Click="DocumentsBtn_Click"
+                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Background="#27ae60" Foreground="White" BorderThickness="0"
+                                            Tag="{Binding}" ToolTip="Управление документами"/>
+                                    <Button Name="EducationBtn" Content="Образование" Click="EducationBtn_Click"
+                                            Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
+                                            Background="#f39c12" Foreground="White" BorderThickness="0"
+                                            Tag="{Binding}" ToolTip="Управление образованием"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollViewer>
+
+        <!-- Панель управления -->
+        <Border Grid.Row="2" Background="#f5f5f5" Padding="15">
+            <StackPanel Orientation="Horizontal">
+                <Button Name="Addbtn" Content="Добавить сотрудника" Click="Addbtn_Click" 
+                        Width="160" Height="35" FontSize="14" FontWeight="Bold"
+                        Background="#4CAF50" Foreground="White" Margin="0,0,20,0"/>
+
+                <Button Name="ManageCrewsBtn" Content="Управление бригадами" Click="ManageCrewsBtn_Click"
+                        Width="170" Height="35" FontSize="14" FontWeight="Bold"
+                        Background="#2196F3" Foreground="White" Margin="0,0,20,0"/>
+
+                <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="20,0,10,0" FontSize="14"/>
+                <ComboBox Name="CountPeopleCBox" Width="100" Height="30" FontSize="12" 
+                          SelectionChanged="CountPeopleCBox_SelectionChanged">
+                    <ComboBoxItem Content="5"/>
+                    <ComboBoxItem Content="15"/>
+                    <ComboBoxItem Content="30"/>
+                    <ComboBoxItem Content="Все"/>
+                </ComboBox>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

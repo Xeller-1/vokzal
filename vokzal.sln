@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vokzal", "vokzal\vokzal.csproj", "{2BACD66E-85B8-4221-8CA0-87E2912FD7BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vokzalTests", "vokzalTests\vokzalTests.csproj", "{5B58663E-F0C4-4457-AA4F-D3496775DCB7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2BACD66E-85B8-4221-8CA0-87E2912FD7BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BACD66E-85B8-4221-8CA0-87E2912FD7BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BACD66E-85B8-4221-8CA0-87E2912FD7BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BACD66E-85B8-4221-8CA0-87E2912FD7BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B58663E-F0C4-4457-AA4F-D3496775DCB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B58663E-F0C4-4457-AA4F-D3496775DCB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B58663E-F0C4-4457-AA4F-D3496775DCB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B58663E-F0C4-4457-AA4F-D3496775DCB7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55984919-7562-413E-BEDB-AC16A69A0186}
+	EndGlobalSection
+EndGlobal
