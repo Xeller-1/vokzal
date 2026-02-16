@@ -1,5 +1,5 @@
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using System;
 using System.Globalization;
 using System.IO;
@@ -10,8 +10,7 @@ namespace vokzal
     {
         private const string OrganizationName = "АО «ЖД Вокзал»";
         private const string OrganizationAddress = "г. Москва, Привокзальная площадь, д. 1";
-        private const string OrganizationCode = "ОКПО 00000000";
-        private const string FormCode = "Форма по ОКУД 0301005 (Т-6)";
+        private const string OrganizationCodes = "ОКПО 00000000, Форма по ОКУД 0301005 (Т-6)";
 
         public static string Generate(Employees employee, VacationBooking vacation)
         {
@@ -21,117 +20,144 @@ namespace vokzal
             var fileName = $"Prikaz_otpuska_{employee.EmployeeID}_{vacation.StartDate:yyyyMMdd}.pdf";
             var filePath = Path.Combine(outputDir, fileName);
 
-            using (var document = new PdfDocument())
+            using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                document.Info.Title = "Приказ о предоставлении отпуска";
-                document.Info.Author = OrganizationName;
-                document.Info.Subject = "Кадровый документ";
+                var document = new Document(PageSize.A4, 56, 56, 56, 56);
+                PdfWriter.GetInstance(document, stream);
+                document.Open();
 
-                var page = document.AddPage();
-                page.Size = PdfSharp.PageSize.A4;
-                page.Orientation = PdfSharp.PageOrientation.Portrait;
+                var regular = CreateUnicodeFont(12, Font.NORMAL);
+                var bold = CreateUnicodeFont(13, Font.BOLD);
+                var title = CreateUnicodeFont(14, Font.BOLD);
+                var small = CreateUnicodeFont(10, Font.NORMAL);
 
-                using (var gfx = XGraphics.FromPdfPage(page))
+                var frame = new PdfPTable(1) { WidthPercentage = 100f };
+                frame.DefaultCell.BorderColor = BaseColor.LIGHT_GRAY;
+                frame.DefaultCell.BorderWidth = 1f;
+                frame.DefaultCell.Padding = 16f;
+
+                var contentCell = new PdfPCell { Border = Rectangle.NO_BORDER, Padding = 0f };
+
+                AddCentered(contentCell, OrganizationName, bold);
+                AddCentered(contentCell, OrganizationAddress, regular);
+                AddCentered(contentCell, OrganizationCodes, small);
+                AddSpacer(contentCell, 10f);
+
+                AddCentered(contentCell, "ПРИКАЗ (РАСПОРЯЖЕНИЕ)", title);
+                AddCentered(contentCell, "о предоставлении отпуска работнику", regular);
+                AddSpacer(contentCell, 10f);
+
+                var orderNumber = $"№ ОТ-{vacation.CreatedAt:yyyyMMdd}-{employee.EmployeeID}";
+                var orderDate = vacation.CreatedAt.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
+
+                var orderInfo = new PdfPTable(2) { WidthPercentage = 100f };
+                orderInfo.SetWidths(new[] { 7f, 3f });
+                orderInfo.AddCell(CreateBorderlessCell($"Номер документа: {orderNumber}", regular));
+                orderInfo.AddCell(CreateBorderlessCell($"Дата: {orderDate}", regular, Element.ALIGN_RIGHT));
+                contentCell.AddElement(orderInfo);
+                AddSpacer(contentCell, 8f);
+
+                AddDataRow(contentCell, "Фамилия, имя, отчество", employee.FullName, regular);
+                AddDataRow(contentCell, "Должность", employee.Positions?.PositionName ?? "—", regular);
+                AddDataRow(contentCell, "Дата приема на работу", employee.HireDate.ToString("dd.MM.yyyy"), regular);
+
+                var vacationType = string.IsNullOrWhiteSpace(vacation.Reason)
+                    ? "ежегодный оплачиваемый отпуск"
+                    : vacation.Reason.Trim();
+                AddDataRow(contentCell, "Вид отпуска", vacationType, regular);
+
+                var days = (vacation.EndDate.Date - vacation.StartDate.Date).Days + 1;
+                AddDataRow(contentCell, "Период отпуска",
+                    $"с {vacation.StartDate:dd.MM.yyyy} по {vacation.EndDate:dd.MM.yyyy} ({days} календарных дней)", regular);
+
+                AddSpacer(contentCell, 8f);
+                contentCell.AddElement(new Paragraph("Основание: утвержденный график отпусков и заявление работника.", regular));
+                AddSpacer(contentCell, 20f);
+
+                contentCell.AddElement(CreateSignatureLine("Руководитель организации", regular));
+                AddSpacer(contentCell, 8f);
+                contentCell.AddElement(CreateSignatureLine("С приказом ознакомлен(а)", regular));
+                AddSpacer(contentCell, 10f);
+
+                contentCell.AddElement(new Paragraph("Документ оформлен с учетом требований ГОСТ Р 7.0.97-2016.", small)
                 {
-                    gfx.DrawRectangle(XPens.LightGray, 36, 36, page.Width - 72, page.Height - 72);
-                    var unicodeOptions = new XPdfFontOptions(PdfFontEncoding.Unicode, PdfFontEmbedding.Always);
+                    Alignment = Element.ALIGN_LEFT
+                });
 
-                    var headerFont = new XFont("Times New Roman", 12, XFontStyle.Bold, unicodeOptions);
-                    var regularFont = new XFont("Times New Roman", 12, XFontStyle.Regular, unicodeOptions);
-                    var titleFont = new XFont("Times New Roman", 14, XFontStyle.Bold, unicodeOptions);
-
-                    var left = 56;
-                    var right = page.Width - 56;
-                    var width = right - left;
-                    var y = 52d;
-
-                    DrawCentered(gfx, OrganizationName, headerFont, left, y, width);
-                    y += 18;
-                    DrawCentered(gfx, OrganizationAddress, regularFont, left, y, width);
-                    y += 18;
-                    DrawCentered(gfx, OrganizationCode, regularFont, left, y, width);
-                    y += 18;
-                    DrawCentered(gfx, FormCode, regularFont, left, y, width);
-
-                    y += 20;
-                    gfx.DrawLine(XPens.Black, left, y, right, y);
-                    y += 26;
-
-                    DrawCentered(gfx, "ПРИКАЗ (РАСПОРЯЖЕНИЕ)", titleFont, left, y, width);
-                    y += 18;
-                    DrawCentered(gfx, "о предоставлении отпуска работнику", regularFont, left, y, width);
-
-                    y += 24;
-                    var orderNumber = $"№ ОТ-{vacation.CreatedAt:yyyyMMdd}-{employee.EmployeeID}";
-                    var orderDate = vacation.CreatedAt.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
-                    gfx.DrawString($"Номер документа: {orderNumber}", regularFont, XBrushes.Black, new XRect(left, y, width * 0.65, 20), XStringFormats.TopLeft);
-                    gfx.DrawString($"Дата: {orderDate}", regularFont, XBrushes.Black, new XRect(left + width * 0.65, y, width * 0.35, 20), XStringFormats.TopRight);
-
-                    y += 32;
-                    DrawField(gfx, "Фамилия, имя, отчество", employee.FullName, regularFont, left, right, ref y);
-
-                    var positionName = employee.Positions?.PositionName ?? "—";
-                    DrawField(gfx, "Должность", positionName, regularFont, left, right, ref y);
-
-                    DrawField(gfx, "Дата приема на работу", employee.HireDate.ToString("dd.MM.yyyy"), regularFont, left, right, ref y);
-
-                    var vacationType = string.IsNullOrWhiteSpace(vacation.Reason)
-                        ? "ежегодный оплачиваемый отпуск"
-                        : vacation.Reason.Trim();
-                    DrawField(gfx, "Вид отпуска", vacationType, regularFont, left, right, ref y);
-
-                    var days = (vacation.EndDate.Date - vacation.StartDate.Date).Days + 1;
-                    DrawField(gfx, "Период отпуска", $"с {vacation.StartDate:dd.MM.yyyy} по {vacation.EndDate:dd.MM.yyyy} ({days} календарных дней)", regularFont, left, right, ref y);
-
-                    y += 10;
-                    var basis = "Основание: утвержденный график отпусков и заявление работника.";
-                    gfx.DrawString(basis, regularFont, XBrushes.Black, new XRect(left, y, width, 20), XStringFormats.TopLeft);
-
-                    y += 48;
-                    DrawSignLine(gfx, "Руководитель организации", regularFont, left, right, ref y);
-                    y += 16;
-                    DrawSignLine(gfx, "С приказом ознакомлен(а)", regularFont, left, right, ref y);
-
-                    y += 18;
-                    gfx.DrawString("Дата начала отпуска и его продолжительность подтверждены кадровой службой.", regularFont, XBrushes.Black,
-                        new XRect(left, y, width, 20), XStringFormats.TopLeft);
-
-                    y += 22;
-                    gfx.DrawString("Документ оформлен с учетом требований ГОСТ Р 7.0.97-2016.",
-                        new XFont("Times New Roman", 10, XFontStyle.Italic, unicodeOptions),
-                        XBrushes.Gray,
-                        new XRect(left, y, width, 20),
-                        XStringFormats.TopLeft);
-                }
-
-                document.Save(filePath);
+                frame.AddCell(contentCell);
+                document.Add(frame);
+                document.Close();
             }
 
             return filePath;
         }
 
-        private static void DrawCentered(XGraphics gfx, string text, XFont font, double x, double y, double width)
+        private static iTextSharp.text.Font CreateUnicodeFont(float size, int style)
         {
-            gfx.DrawString(text, font, XBrushes.Black, new XRect(x, y, width, 20), XStringFormats.TopCenter);
+            var windowsArial = @"C:\Windows\Fonts\arial.ttf";
+            var windowsTimes = @"C:\Windows\Fonts\times.ttf";
+            var fallbackLinux = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+
+            var fontPath = File.Exists(windowsArial)
+                ? windowsArial
+                : File.Exists(windowsTimes)
+                    ? windowsTimes
+                    : fallbackLinux;
+
+            var baseFont = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            return new iTextSharp.text.Font(baseFont, size, style, BaseColor.BLACK);
         }
 
-        private static void DrawField(XGraphics gfx, string label, string value, XFont font, double left, double right, ref double y)
+        private static void AddCentered(PdfPCell cell, string text, iTextSharp.text.Font font)
         {
-            var width = right - left;
-            gfx.DrawString($"{label}: {value}", font, XBrushes.Black, new XRect(left, y, width, 20), XStringFormats.TopLeft);
-            y += 24;
-            gfx.DrawLine(XPens.Black, left, y, right, y);
-            y += 8;
+            cell.AddElement(new Paragraph(text, font) { Alignment = Element.ALIGN_CENTER });
         }
 
-        private static void DrawSignLine(XGraphics gfx, string label, XFont font, double left, double right, ref double y)
+        private static void AddSpacer(PdfPCell cell, float size)
         {
-            gfx.DrawString(label, font, XBrushes.Black, new XRect(left, y, 180, 20), XStringFormats.TopLeft);
-            gfx.DrawLine(XPens.Black, left + 190, y + 14, right - 120, y + 14);
-            gfx.DrawString("(подпись)", new XFont("Times New Roman", 10, XFontStyle.Italic,
-                new XPdfFontOptions(PdfFontEncoding.Unicode, PdfFontEmbedding.Always)),
-                XBrushes.Gray, new XRect(right - 110, y + 6, 100, 20), XStringFormats.TopLeft);
-            y += 24;
+            cell.AddElement(new Paragraph(" ") { SpacingAfter = size });
+        }
+
+        private static PdfPCell CreateBorderlessCell(string text, iTextSharp.text.Font font, int align = Element.ALIGN_LEFT)
+        {
+            return new PdfPCell(new Phrase(text, font))
+            {
+                Border = Rectangle.NO_BORDER,
+                HorizontalAlignment = align,
+                Padding = 0f
+            };
+        }
+
+        private static void AddDataRow(PdfPCell cell, string label, string value, iTextSharp.text.Font font)
+        {
+            var table = new PdfPTable(1) { WidthPercentage = 100f, SpacingBefore = 2f };
+            table.AddCell(new PdfPCell(new Phrase($"{label}: {value}", font))
+            {
+                Border = Rectangle.BOTTOM_BORDER,
+                BorderWidthBottom = 0.8f,
+                BorderColorBottom = BaseColor.GRAY,
+                PaddingBottom = 6f,
+                PaddingTop = 2f,
+                PaddingLeft = 0f,
+                PaddingRight = 0f
+            });
+            cell.AddElement(table);
+        }
+
+        private static PdfPTable CreateSignatureLine(string label, iTextSharp.text.Font font)
+        {
+            var table = new PdfPTable(3) { WidthPercentage = 100f };
+            table.SetWidths(new[] { 35f, 40f, 25f });
+            table.AddCell(CreateBorderlessCell(label, font));
+            table.AddCell(new PdfPCell
+            {
+                Border = Rectangle.BOTTOM_BORDER,
+                BorderWidthBottom = 0.8f,
+                BorderColorBottom = BaseColor.GRAY,
+                MinimumHeight = 18f
+            });
+            table.AddCell(CreateBorderlessCell("(подпись)", CreateUnicodeFont(10, Font.NORMAL), Element.ALIGN_RIGHT));
+            return table;
         }
     }
 }

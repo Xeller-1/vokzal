@@ -17,8 +17,8 @@
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#F5F8FF" Offset="0"/>
-                <GradientStop Color="#ECFDF8" Offset="1"/>
+                <GradientStop Color="#0B1223" Offset="0"/>
+                <GradientStop Color="#111827" Offset="1"/>
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.RowDefinitions>
@@ -57,7 +57,7 @@
                       BorderThickness="0" Background="Transparent">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#CFE0FF" BorderThickness="1" Padding="20" Margin="0,8,6,8" Background="White" CornerRadius="14">
+                        <Border BorderBrush="#334155" BorderThickness="1" Padding="20" Margin="0,8,6,8" Background="#0F172A" CornerRadius="14">
                             <Grid Width="1200" Margin="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
@@ -90,9 +90,9 @@
                                 <!-- Основная информация -->
                                 <StackPanel Grid.Column="1" Margin="0,0,20,0">
                                     <TextBlock Text="{Binding Employee.FullName, Mode=OneWay}"
-                                               FontSize="16" FontWeight="Bold" Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                               FontSize="16" FontWeight="Bold" Margin="0,0,0,6" Foreground="#E2E8F0"/>
                                     <TextBlock Text="{Binding Position.PositionName, Mode=OneWay}"
-                                               FontSize="14" Foreground="#3498db" Margin="0,0,0,4"/>
+                                               FontSize="14" Foreground="#38BDF8" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding Employee.Gender, Mode=OneWay}"
                                                FontSize="13" Margin="0,0,0,3"/>
                                     <TextBlock Text="{Binding Employee.Phone, Mode=OneWay}"
@@ -124,7 +124,7 @@
                                 <!-- Паспортные данные и документы -->
                                 <StackPanel Grid.Column="2" Margin="0,0,20,0">
                                     <TextBlock Text="Паспортные данные" FontSize="14" FontWeight="Bold"
-                                               Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                               Margin="0,0,0,6" Foreground="#E2E8F0"/>
                                     <TextBlock Text="{Binding Document.PassportData, Mode=OneWay}"
                                                FontSize="13" Margin="0,0,0,3"/>
                                     <TextBlock Text="{Binding Document.PassportIssuedBy, Mode=OneWay}"
@@ -133,12 +133,12 @@
                                                FontSize="12" Margin="0,0,0,6"/>
 
                                     <TextBlock Text="Адрес регистрации" FontSize="14" FontWeight="Bold"
-                                               Margin="0,6,0,4" Foreground="#2c3e50"/>
+                                               Margin="0,6,0,4" Foreground="#E2E8F0"/>
                                     <TextBlock Text="{Binding Employee.Registration, Mode=OneWay}"
                                                FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
 
                                     <TextBlock Text="Документы" FontSize="14" FontWeight="Bold"
-                                               Margin="0,6,0,4" Foreground="#2c3e50"/>
+                                               Margin="0,6,0,4" Foreground="#E2E8F0"/>
                                     <TextBlock FontSize="12" Margin="0,0,0,2">
                                         <Run Text="ИНН: " FontWeight="SemiBold"/>
                                         <Run Text="{Binding Document.INN, Mode=OneWay}"/>
@@ -156,7 +156,7 @@
                                 <!-- Образование -->
                                 <StackPanel Grid.Column="3" Margin="0,0,15,0">
                                     <TextBlock Text="Образование" FontSize="14" FontWeight="Bold"
-                                               Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                               Margin="0,0,0,6" Foreground="#E2E8F0"/>
                                     <Border BorderBrush="#eee" BorderThickness="1" CornerRadius="4" Background="#fafafa"
                                             MaxHeight="150">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="3">
@@ -184,23 +184,23 @@
                                 <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="5,0,0,0">
                                     <Button Name="EditBtn" Content="Редактировать" Click="EditBtn_Click"
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
-                                            Background="#3498db" Foreground="White" BorderThickness="0"
+                                            Background="#3498db" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}"/>
                                     <Button Name="DeleteBtn" Content="Удалить" Click="DeleteBtn_Click"
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
-                                            Background="#e74c3c" Foreground="White" BorderThickness="0"
+                                            Background="#e74c3c" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}"/>
                                     <Button Name="DocumentsBtn" Content="Документы" Click="DocumentsBtn_Click"
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
-                                            Background="#27ae60" Foreground="White" BorderThickness="0"
+                                            Background="#27ae60" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Управление документами"/>
                                     <Button Name="EducationBtn" Content="Образование" Click="EducationBtn_Click"
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
-                                            Background="#f39c12" Foreground="White" BorderThickness="0"
+                                            Background="#f39c12" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Управление образованием"/>
                                     <Button Name="HrBtn" Content="Кадры" Click="HrBtn_Click"
                                             Width="130" Height="32" Margin="0,5" FontSize="12" FontWeight="SemiBold"
-                                            Background="#8e44ad" Foreground="White" BorderThickness="0"
+                                            Background="#8e44ad" Foreground="#F8FAFC" BorderThickness="0"
                                             Tag="{Binding}" ToolTip="Отпуска, должности, PDF-приказы"/>
                                 </StackPanel>
                             </Grid>
@@ -215,13 +215,13 @@
             <StackPanel Orientation="Horizontal">
                 <Button Name="Addbtn" Content="Добавить сотрудника" Click="Addbtn_Click"
                         Width="160" Height="35" FontSize="14" FontWeight="Bold"
-                        Background="#14B8A6" Foreground="White" Margin="0,0,20,0"/>
+                        Background="#14B8A6" Foreground="#F8FAFC" Margin="0,0,20,0"/>
 
                 <Button Name="ManageCrewsBtn" Content="Управление бригадами" Click="ManageCrewsBtn_Click"
                         Width="170" Height="35" FontSize="14" FontWeight="Bold"
-                        Background="#5B6CFF" Foreground="White" Margin="0,0,20,0"/>
+                        Background="#5B6CFF" Foreground="#F8FAFC" Margin="0,0,20,0"/>
 
-                <TextBlock x:Name="RecordsInfoText" Text="Найдено сотрудников: 0" VerticalAlignment="Center" Margin="10,0,20,0" FontSize="14" FontWeight="SemiBold" Foreground="#1e293b"/>
+                <TextBlock x:Name="RecordsInfoText" Text="Найдено сотрудников: 0" VerticalAlignment="Center" Margin="10,0,20,0" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0"/>
                 <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="10,0,10,0" FontSize="14"/>
                 <ComboBox Name="CountPeopleCBox" Width="100" Height="30" FontSize="12"
                           SelectionChanged="CountPeopleCBox_SelectionChanged">

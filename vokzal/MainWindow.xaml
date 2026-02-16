@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Margin="14,12,14,0" CornerRadius="18" BorderBrush="#D4E4FF" BorderThickness="1">
+        <Border Margin="14,12,14,0" CornerRadius="18" BorderBrush="#334155" BorderThickness="1">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                     <GradientStop Color="#5B6CFF" Offset="0"/>
@@ -33,14 +33,14 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="ЖД Вокзал" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="ЖД Вокзал" FontSize="28" FontWeight="Bold" Foreground="#F8FAFC"/>
                     <TextBlock Text="Управление сотрудниками, документами и кадровыми процессами"
                                FontSize="13" Foreground="#E2E8F0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Background="#25FFFFFF" CornerRadius="999" Padding="10,4" Margin="0,0,10,0">
-                        <TextBlock Text="HR" Foreground="White" FontWeight="SemiBold"/>
+                        <TextBlock Text="HR" Foreground="#F8FAFC" FontWeight="SemiBold"/>
                     </Border>
                     <Button Content="← Назад" Name="BtnBack" Width="120" Height="36"
                             VerticalAlignment="Center" Click="BtnBack_Click" Visibility="Collapsed"
