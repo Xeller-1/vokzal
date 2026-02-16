@@ -14,7 +14,10 @@ namespace vokzal
 
         public static string Generate(Employees employee, VacationBooking vacation)
         {
-            var outputDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Orders");
+            var outputDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "vokzal",
+                "Orders");
             Directory.CreateDirectory(outputDir);
 
             var fileName = $"Prikaz_otpuska_{employee.EmployeeID}_{vacation.StartDate:yyyyMMdd}.pdf";

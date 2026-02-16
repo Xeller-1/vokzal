@@ -17,10 +17,10 @@
 
         <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Padding="14" Margin="0,0,0,12">
             <StackPanel>
-            <TextBlock x:Name="EmployeeNameText" FontSize="22" FontWeight="Bold"/>
-            <TextBlock x:Name="HireDateText" FontSize="14" Margin="0,4,0,0"/>
-            <TextBlock x:Name="CurrentPositionText" FontSize="14" Margin="0,4,0,0"/>
-        </StackPanel>
+                <TextBlock x:Name="EmployeeNameText" FontSize="22" FontWeight="Bold"/>
+                <TextBlock x:Name="HireDateText" FontSize="14" Margin="0,4,0,0"/>
+                <TextBlock x:Name="CurrentPositionText" FontSize="14" Margin="0,4,0,0"/>
+            </StackPanel>
         </Border>
 
         <Grid Grid.Row="1">
@@ -40,8 +40,8 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding PositionName}" Width="170"/>
-                                <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="90"/>
-                                <GridViewColumn Header="По" DisplayMemberBinding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="90"/>
+                                <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                <GridViewColumn Header="По" DisplayMemberBinding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="100"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -59,9 +59,10 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListView x:Name="VacationList" Grid.Row="0">
+                    <ListView x:Name="VacationList" Grid.Row="0" MouseDoubleClick="VacationList_MouseDoubleClick">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="90"/>
@@ -71,7 +72,10 @@
                         </ListView.View>
                     </ListView>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Grid.Row="1" Margin="0,6,0,6" Foreground="#6B7280"
+                               Text="Подсказка: дважды кликните по записи отпуска, чтобы открыть PDF-приказ"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,0">
                         <DatePicker x:Name="VacationStartDatePicker" Width="130"/>
                         <DatePicker x:Name="VacationEndDatePicker" Width="130" Margin="8,0,0,0"/>
                         <TextBox x:Name="VacationReasonTextBox" Width="170" Margin="8,0,0,0"/>
@@ -83,8 +87,8 @@
 
         <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Padding="10" Margin="0,12,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Назад" Width="120" Click="Back_Click"/>
-        </StackPanel>
+                <Button Content="Назад" Width="120" Click="Back_Click"/>
+            </StackPanel>
         </Border>
     </Grid>
 </Page>

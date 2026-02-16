@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,7 +15,7 @@ namespace vokzal
             InitializeComponent();
             _employee = employee;
             PositionCombo.ItemsSource = VokzalEntities.GetContext().Positions.ToList();
-            PositionStartDatePicker.SelectedDate = DateTime.Today;
+            PositionStartDatePicker.SelectedDate = _employee.HireDate.Date;
             VacationStartDatePicker.SelectedDate = DateTime.Today;
             VacationEndDatePicker.SelectedDate = DateTime.Today.AddDays(14);
             BindHeader();
@@ -31,15 +32,40 @@ namespace vokzal
         private void RefreshData()
         {
             var data = HrDataService.Load();
+            EnsureInitialPositionHistory(data);
+
             PositionHistoryList.ItemsSource = data.PositionHistory
                 .Where(p => p.EmployeeId == _employee.EmployeeID)
-                .OrderByDescending(p => p.StartDate)
+                .OrderBy(p => p.StartDate)
                 .ToList();
 
             VacationList.ItemsSource = data.Vacations
                 .Where(v => v.EmployeeId == _employee.EmployeeID)
                 .OrderByDescending(v => v.StartDate)
                 .ToList();
+        }
+
+        private void EnsureInitialPositionHistory(HrDataContainer data)
+        {
+            var hasRecords = data.PositionHistory.Any(p => p.EmployeeId == _employee.EmployeeID);
+            if (hasRecords)
+            {
+                return;
+            }
+
+            var currentPosition = VokzalEntities.GetContext().Positions
+                .FirstOrDefault(p => p.PositionID == _employee.PositionID);
+
+            data.PositionHistory.Add(new PositionHistoryRecord
+            {
+                EmployeeId = _employee.EmployeeID,
+                PositionId = _employee.PositionID,
+                PositionName = currentPosition?.PositionName ?? _employee.Positions?.PositionName ?? "Не указано",
+                StartDate = _employee.HireDate.Date,
+                EndDate = null
+            });
+
+            HrDataService.Save(data);
         }
 
         private void AddPositionHistory_Click(object sender, RoutedEventArgs e)
@@ -124,6 +150,8 @@ namespace vokzal
             try
             {
                 var pdfPath = PdfVacationOrderGenerator.Generate(_employee, booking);
+                booking.PdfPath = pdfPath;
+                HrDataService.Save(data);
                 MessageBox.Show($"Отпуск добавлен. PDF приказ создан:\n{pdfPath}", "Успех");
             }
             catch (Exception ex)
@@ -132,6 +160,67 @@ namespace vokzal
             }
 
             RefreshData();
+        }
+
+
+        private void VacationList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var vacation = VacationList.SelectedItem as VacationBooking;
+            if (vacation == null)
+            {
+                return;
+            }
+
+            var pdfPath = ResolveVacationPdfPath(vacation);
+            if (string.IsNullOrWhiteSpace(pdfPath))
+            {
+                MessageBox.Show("Файл PDF не найден для выбранного отпуска", "Внимание");
+                return;
+            }
+
+            if (vacation.PdfPath != pdfPath)
+            {
+                vacation.PdfPath = pdfPath;
+                var data = HrDataService.Load();
+                var stored = data.Vacations.FirstOrDefault(v => v.Id == vacation.Id);
+                if (stored != null)
+                {
+                    stored.PdfPath = pdfPath;
+                    HrDataService.Save(data);
+                }
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo(pdfPath) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось открыть PDF: {ex.Message}", "Ошибка");
+            }
+        }
+
+        private string ResolveVacationPdfPath(VacationBooking vacation)
+        {
+            if (!string.IsNullOrWhiteSpace(vacation.PdfPath) && System.IO.File.Exists(vacation.PdfPath))
+            {
+                return vacation.PdfPath;
+            }
+
+            var fileName = $"Prikaz_otpuska_{_employee.EmployeeID}_{vacation.StartDate:yyyyMMdd}.pdf";
+            var currentDirPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Orders", fileName);
+            if (System.IO.File.Exists(currentDirPath))
+            {
+                return currentDirPath;
+            }
+
+            var localAppDataPath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "vokzal",
+                "Orders",
+                fileName);
+
+            return System.IO.File.Exists(localAppDataPath) ? localAppDataPath : null;
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

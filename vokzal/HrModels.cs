@@ -10,6 +10,7 @@ namespace vokzal
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Reason { get; set; }
+        public string PdfPath { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 
