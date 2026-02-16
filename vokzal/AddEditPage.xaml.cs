@@ -107,8 +107,8 @@ namespace vokzal
                     errors.AppendLine("Дата поступления не может быть в будущем");
 
                 // Проверка что сотруднику не менее 18 лет на момент поступления
-                if (currentPeople.BirthDate != null && hireDate < ((DateTime)currentPeople.BirthDate).AddYears(14))
-                    errors.AppendLine("Сотрудник не может быть принят на работу если ему меньше 14 лет");
+                if (hireDate < currentPeople.BirthDate.AddYears(18))
+                    errors.AppendLine("Сотрудник не может быть принят на работу, если ему меньше 18 лет");
                 else
                     currentPeople.HireDate = hireDate;
             }

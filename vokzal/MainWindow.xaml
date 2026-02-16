@@ -5,16 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:vokzal"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" FontFamily="Tw Cen MT" Icon="Resources/logo.png">
+        Title="ЖД Вокзал • Управление персоналом" Height="900" Width="1450"
+        MinHeight="760" MinWidth="1200" Icon="Resources/logo.png">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="78"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Image Source="Resources/logo.png" HorizontalAlignment="Left"></Image>
-        <TextBlock Text="ЖД Вокзал" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-        <Frame Grid.Row="1" Name="MainFrame" ContentRendered="MainFrame_ContentRendered" NavigationUIVisibility="Hidden"></Frame>
-        <Button Content="Назад" Name="BtnBack" Width="160" Height="30" FontSize="20" HorizontalAlignment="Right" Margin="55 5" Click="BtnBack_Click"></Button>
+
+        <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="20,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Source="Resources/logo.png" Width="56" Height="56" Margin="0,0,16,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="ЖД Вокзал" FontSize="26" FontWeight="Bold" Foreground="#111827"/>
+                    <TextBlock Text="Сотрудники, документы и кадровые процессы" FontSize="13" Foreground="#6B7280"/>
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="← Назад" Name="BtnBack" Width="120" Height="34"
+                        VerticalAlignment="Center" Click="BtnBack_Click" Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+
+        <Frame Grid.Row="1" Name="MainFrame" ContentRendered="MainFrame_ContentRendered"
+               NavigationUIVisibility="Hidden" Margin="14"/>
+
+        <Border Grid.Row="2" Background="White" BorderBrush="#E5E7EB" BorderThickness="1,1,1,0" Padding="14,8">
+            <TextBlock Text="Подсказка: используйте кнопку «Кадры» в карточке сотрудника для отпусков и истории должностей"
+                       FontSize="12" Foreground="#4B5563"/>
+        </Border>
     </Grid>
 </Window>

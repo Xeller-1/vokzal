@@ -4,8 +4,36 @@
              xmlns:local="clr-namespace:vokzal"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#2D7FF9"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#1D5FC2"/>
+        <SolidColorBrush x:Key="LightBackgroundBrush" Color="#F3F6FB"/>
+        <SolidColorBrush x:Key="CardBrush" Color="White"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#1F2937"/>
+
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="{StaticResource LightBackgroundBrush}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#28E059"></Setter>
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,4"/>
         </Style>
     </Application.Resources>
 </Application>
