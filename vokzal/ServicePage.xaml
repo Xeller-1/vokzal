@@ -52,9 +52,11 @@
         </Border>
 
         <!-- Список сотрудников -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="8,10,8,0">
-            <ListView Name="ServiceListView" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      BorderThickness="0" Background="Transparent" HorizontalContentAlignment="Stretch">
+        <ListView Grid.Row="1" Name="ServiceListView" Margin="18,10,18,0"
+                  BorderThickness="0" Background="Transparent" HorizontalContentAlignment="Stretch"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ScrollViewer.CanContentScroll="True">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="#D1D5DB" BorderThickness="1" Padding="20" Margin="0,8,6,8" Background="White" CornerRadius="10">
@@ -207,8 +209,7 @@
                         </Border>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+        </ListView>
 
         <!-- Панель управления -->
         <Border Grid.Row="2" Padding="15" Margin="10" Style="{StaticResource CardBorderStyle}">

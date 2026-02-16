@@ -33,6 +33,12 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
+
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
         <Style TargetType="Button">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
@@ -64,7 +70,7 @@
 
         <Style TargetType="TextBox">
             <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="BorderBrush" Value="#C7CDD4"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -74,7 +80,7 @@
 
         <Style TargetType="ComboBox">
             <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="BorderBrush" Value="#C7CDD4"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="White"/>

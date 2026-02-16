@@ -3,55 +3,55 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Документы сотрудника">
 
-    <Grid Margin="10">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Binding EmployeeName}" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="{Binding EmployeeName}" FontSize="30" FontWeight="Bold" Margin="0,0,0,12"/>
 
-        <GroupBox Grid.Row="1" Header="Документы сотрудника" Padding="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <GroupBox Header="Документы сотрудника" Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Паспорт:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CurrentDocument.PassportData}" Margin="5" Height="25"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Паспорт:" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CurrentDocument.PassportData}" Margin="0,5"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Кем выдан:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrentDocument.PassportIssuedBy}" Margin="5" Height="25"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Кем выдан:" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrentDocument.PassportIssuedBy}" Margin="0,5"/>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Дата выдачи:" Margin="5" VerticalAlignment="Center"/>
-                <DatePicker Grid.Row="2" Grid.Column="1" SelectedDate="{Binding CurrentDocument.PassportIssueDate}" Margin="5" Height="25"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Дата выдачи:" Margin="0,8" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="2" Grid.Column="1" SelectedDate="{Binding CurrentDocument.PassportIssueDate}" Margin="0,5"/>
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="ИНН:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CurrentDocument.INN}" Margin="5" Height="25"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="ИНН:" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CurrentDocument.INN}" Margin="0,5"/>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="СНИЛС:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CurrentDocument.SNILS}" Margin="5" Height="25"/>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="СНИЛС:" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CurrentDocument.SNILS}" Margin="0,5"/>
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Мед. полис:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CurrentDocument.MedicalPolicy}" Margin="5" Height="25"/>
-            </Grid>
-        </GroupBox>
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Медицинский полис:" Margin="0,8" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CurrentDocument.MedicalPolicy}" Margin="0,5"/>
+                </Grid>
+            </GroupBox>
+        </ScrollViewer>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
-            <Button Name="SaveBtn" Content="Сохранить" Click="SaveBtn_Click" Width="100" Margin="5"/>
-            <Button Name="CancelBtn" Content="Отмена" Click="CancelBtn_Click" Width="100" Margin="5"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Name="SaveBtn" Content="Сохранить" Click="SaveBtn_Click" Width="130" Margin="5"/>
+            <Button Name="CancelBtn" Content="Отмена" Click="CancelBtn_Click" Width="130" Margin="5" Background="#6B7280"/>
         </StackPanel>
     </Grid>
 </Page>
