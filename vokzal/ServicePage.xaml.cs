@@ -254,5 +254,19 @@ namespace vokzal
                 Manager.MainFrame.Navigate(new EducationPage(employee));
             }
         }
+
+
+        private void HrBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var employeeData = button?.Tag;
+            var employeeProperty = employeeData?.GetType().GetProperty("Employee");
+            var employee = employeeProperty?.GetValue(employeeData) as Employees;
+
+            if (employee != null)
+            {
+                Manager.MainFrame.Navigate(new EmployeeHrPage(employee));
+            }
+        }
     }
 }

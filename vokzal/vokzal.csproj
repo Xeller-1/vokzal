@@ -55,6 +55,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -89,12 +90,18 @@
     <Compile Include="EmployeeDocumentsPage.xaml.cs">
       <DependentUpon>EmployeeDocumentsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EmployeeHrPage.xaml.cs">
+      <DependentUpon>EmployeeHrPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="HrDataService.cs" />
+    <Compile Include="HrModels.cs" />
     <Compile Include="Employees.cs">
       <DependentUpon>Vokzal.tt</DependentUpon>
     </Compile>
     <Compile Include="EmployeeValidator.cs" />
     <Compile Include="ExperienceConverter.cs" />
     <Compile Include="Manager.cs" />
+    <Compile Include="PdfVacationOrderGenerator.cs" />
     <Compile Include="Positions.cs">
       <DependentUpon>Vokzal.tt</DependentUpon>
     </Compile>
@@ -156,6 +163,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="EmployeeDocumentsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EmployeeHrPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
