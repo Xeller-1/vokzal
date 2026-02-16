@@ -4,22 +4,18 @@
              xmlns:local="clr-namespace:vokzal"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#0F172A" Offset="0"/>
-            <GradientStop Color="#1E1B4B" Offset="0.45"/>
-            <GradientStop Color="#0F766E" Offset="1"/>
-        </LinearGradientBrush>
-
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#8B5CF6"/>
-        <SolidColorBrush x:Key="PrimaryBrushDark" Color="#7C3AED"/>
-        <SolidColorBrush x:Key="SecondaryBrush" Color="#06B6D4"/>
-        <SolidColorBrush x:Key="TextBrush" Color="#E2E8F0"/>
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#CBD5E1"/>
-        <SolidColorBrush x:Key="CardBrush" Color="#0B1223"/>
-        <SolidColorBrush x:Key="CardBorderBrush" Color="#334155"/>
+        <!-- Классический светлый стиль с акцентами РЖД -->
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F4F6F8"/>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#D71920"/>
+        <SolidColorBrush x:Key="PrimaryBrushDark" Color="#B40F15"/>
+        <SolidColorBrush x:Key="SecondaryBrush" Color="#6B7280"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#1F2937"/>
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#6B7280"/>
+        <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#D1D5DB"/>
 
         <Style TargetType="Window">
-            <Setter Property="Background" Value="{StaticResource AppBackgroundBrush}"/>
+            <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         </Style>
@@ -33,7 +29,7 @@
             <Setter Property="Background" Value="{StaticResource CardBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -42,12 +38,12 @@
             <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Padding" Value="12,7"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="10">
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -55,7 +51,7 @@
                                 <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource PrimaryBrushDark}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.92"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55"/>
@@ -70,19 +66,19 @@
             <Setter Property="Height" Value="36"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="BorderBrush" Value="#475569"/>
+            <Setter Property="BorderBrush" Value="#C7CDD4"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="#0F172A"/>
-            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
         </Style>
 
         <Style TargetType="ComboBox">
             <Setter Property="Height" Value="36"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="BorderBrush" Value="#475569"/>
+            <Setter Property="BorderBrush" Value="#C7CDD4"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="#0F172A"/>
-            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
         </Style>
 
         <Style TargetType="GroupBox">

@@ -94,17 +94,31 @@ namespace vokzal
 
         private static iTextSharp.text.Font CreateUnicodeFont(float size, int style)
         {
-            var windowsArial = @"C:\Windows\Fonts\arial.ttf";
-            var windowsTimes = @"C:\Windows\Fonts\times.ttf";
-            var fallbackLinux = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+            var fontCandidates = new[]
+            {
+                @"C:\Windows\Fonts\arialuni.ttf",
+                @"C:\Windows\Fonts\arial.ttf",
+                @"C:\Windows\Fonts\times.ttf",
+                @"C:\Windows\Fonts\calibri.ttf",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+            };
 
-            var fontPath = File.Exists(windowsArial)
-                ? windowsArial
-                : File.Exists(windowsTimes)
-                    ? windowsTimes
-                    : fallbackLinux;
+            string fontPath = null;
+            foreach (var path in fontCandidates)
+            {
+                if (File.Exists(path))
+                {
+                    fontPath = path;
+                    break;
+                }
+            }
 
-            var baseFont = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            if (fontPath == null)
+            {
+                throw new FileNotFoundException("Не найден подходящий TTF-шрифт для кириллицы. Установите Arial/Calibri/DejaVuSans.");
+            }
+
+            var baseFont = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true);
             return new iTextSharp.text.Font(baseFont, size, style, BaseColor.BLACK);
         }
 

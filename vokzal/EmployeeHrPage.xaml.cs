@@ -121,8 +121,16 @@ namespace vokzal
             data.Vacations.Add(booking);
             HrDataService.Save(data);
 
-            var pdfPath = PdfVacationOrderGenerator.Generate(_employee, booking);
-            MessageBox.Show($"Отпуск добавлен. PDF приказ создан:\n{pdfPath}", "Успех");
+            try
+            {
+                var pdfPath = PdfVacationOrderGenerator.Generate(_employee, booking);
+                MessageBox.Show($"Отпуск добавлен. PDF приказ создан:\n{pdfPath}", "Успех");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Отпуск сохранен, но PDF не удалось создать: {ex.Message}", "Предупреждение");
+            }
+
             RefreshData();
         }
 

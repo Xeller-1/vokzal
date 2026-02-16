@@ -14,13 +14,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Margin="14,12,14,0" CornerRadius="18" BorderBrush="#334155" BorderThickness="1">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#5B6CFF" Offset="0"/>
-                    <GradientStop Color="#14B8A6" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
+        <Border Margin="14,12,14,0" CornerRadius="10" BorderBrush="#D1D5DB" BorderThickness="1" Background="White">
             <Grid Margin="18,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -28,23 +22,22 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Background="#25FFFFFF" CornerRadius="12" Padding="8" Margin="0,0,14,0">
+                <Border Background="#F3F4F6" CornerRadius="8" Padding="8" Margin="0,0,14,0">
                     <Image Source="Resources/logo.png" Width="50" Height="50"/>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="ЖД Вокзал" FontSize="28" FontWeight="Bold" Foreground="#F8FAFC"/>
-                    <TextBlock Text="Управление сотрудниками, документами и кадровыми процессами"
-                               FontSize="13" Foreground="#E2E8F0"/>
+                    <TextBlock Text="ЖД Вокзал" FontSize="27" FontWeight="Bold" Foreground="#111827"/>
+                    <TextBlock Text="Сотрудники, документы и кадровые процессы" FontSize="13" Foreground="#6B7280"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#25FFFFFF" CornerRadius="999" Padding="10,4" Margin="0,0,10,0">
-                        <TextBlock Text="HR" Foreground="#F8FAFC" FontWeight="SemiBold"/>
+                    <Border Background="#D71920" CornerRadius="999" Padding="10,4" Margin="0,0,10,0">
+                        <TextBlock Text="HR" Foreground="White" FontWeight="SemiBold"/>
                     </Border>
                     <Button Content="← Назад" Name="BtnBack" Width="120" Height="36"
                             VerticalAlignment="Center" Click="BtnBack_Click" Visibility="Collapsed"
-                            Background="#1E293B"/>
+                            Background="#374151"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -54,9 +47,9 @@
 
         <Border Grid.Row="2" Margin="14,0,14,12" Style="{StaticResource CardBorderStyle}" Padding="14,9">
             <DockPanel>
-                <TextBlock Text="Подсказка: для отпусков и истории должностей используйте кнопку «Кадры» в карточке сотрудника"
+                <TextBlock Text="Подсказка: отпуска и история должностей доступны по кнопке «Кадры» в карточке сотрудника"
                            FontSize="12" Foreground="{StaticResource MutedTextBrush}" DockPanel.Dock="Left"/>
-                <TextBlock Text="v2" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Right"/>
+                <TextBlock Text="RZD style" FontSize="11" FontWeight="SemiBold" Foreground="#6B7280" HorizontalAlignment="Right"/>
             </DockPanel>
         </Border>
     </Grid>
