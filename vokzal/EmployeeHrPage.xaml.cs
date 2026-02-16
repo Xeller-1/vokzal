@@ -128,7 +128,7 @@ namespace vokzal
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Отпуск сохранен, но PDF не удалось создать: {ex.Message}", "Предупреждение");
+                MessageBox.Show($"Отпуск сохранен, но PDF не удалось создать: {ex.Message}\n\nПроверьте восстановление NuGet-пакетов (iTextSharp и Portable.BouncyCastle).", "Предупреждение");
             }
 
             RefreshData();
