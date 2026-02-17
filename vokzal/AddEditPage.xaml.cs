@@ -7,13 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace vokzal
 {
@@ -25,14 +19,16 @@ namespace vokzal
         {
             InitializeComponent();
 
-            // Загрузка должностей в ComboBox
             PositionComboBox.ItemsSource = VokzalEntities.GetContext().Positions.ToList();
             PositionComboBox.DisplayMemberPath = "PositionName";
             PositionComboBox.SelectedValuePath = "PositionID";
 
             if (selectedPeople != null)
             {
-                currentPeople = selectedPeople;
+                currentPeople = VokzalEntities.GetContext().Employees
+                    .Include(e => e.Positions)
+                    .FirstOrDefault(e => e.EmployeeID == selectedPeople.EmployeeID) ?? selectedPeople;
+
                 EditTitle.Visibility = Visibility.Visible;
                 AddTitle.Visibility = Visibility.Collapsed;
             }
@@ -65,7 +61,6 @@ namespace vokzal
                     .Select(x => (int?)x.PositionID)
                     .FirstOrDefault();
 
-            // Проверки ФИО
             if (string.IsNullOrWhiteSpace(currentPeople.LastName))
                 errors.AppendLine("Укажите фамилию сотрудника");
             else if (currentPeople.LastName.Length > 50)
@@ -87,7 +82,6 @@ namespace vokzal
             else if (!Regex.IsMatch(currentPeople.MiddleName, @"^[a-zA-Zа-яА-ЯёЁ\s-]+$"))
                 errors.AppendLine("Отчество может содержать только буквы, пробелы и дефисы");
 
-            // Проверка даты рождения
             if (BirthDatePicker.SelectedDate == null)
             {
                 errors.AppendLine("Укажите дату рождения сотрудника");
@@ -103,7 +97,6 @@ namespace vokzal
                     currentPeople.BirthDate = birthDate;
             }
 
-            // Проверка даты поступления на работу
             if (HireDatePicker.SelectedDate == null)
             {
                 errors.AppendLine("Укажите дату поступления на работу");
@@ -114,35 +107,26 @@ namespace vokzal
                 if (hireDate > DateTime.Now)
                     errors.AppendLine("Дата поступления не может быть в будущем");
 
-                // Проверка что сотруднику не менее 18 лет на момент поступления
                 if (hireDate < currentPeople.BirthDate.AddYears(18))
                     errors.AppendLine("Сотрудник не может быть принят на работу, если ему меньше 18 лет");
                 else
                     currentPeople.HireDate = hireDate;
             }
 
-            // Проверка адреса
             if (string.IsNullOrWhiteSpace(currentPeople.Address))
-            {
                 errors.AppendLine("Укажите адрес проживания");
-            }
 
-            // Проверка адреса регистрации
             if (string.IsNullOrWhiteSpace(currentPeople.Registration))
-            {
                 errors.AppendLine("Укажите адрес регистрации");
-            }
 
-            // Проверка телефона
             if (string.IsNullOrWhiteSpace(currentPeople.Phone))
             {
                 errors.AppendLine("Укажите номер телефона");
             }
             else
             {
-                // Очищаем номер и сохраняем очищенную версию
                 string cleanedNumber = Regex.Replace(currentPeople.Phone, @"[^\d+]", "");
-                currentPeople.Phone = cleanedNumber; // Сохраняем очищенный номер
+                currentPeople.Phone = cleanedNumber;
 
                 if (!Regex.IsMatch(cleanedNumber, @"^(\+7|7|8)?[\d]{10}$"))
                 {
@@ -150,24 +134,12 @@ namespace vokzal
                 }
             }
 
-            // Проверка должности
             if (PositionComboBox.SelectedItem == null)
-            {
                 errors.AppendLine("Выберите должность сотрудника");
-            }
             else
-            {
                 currentPeople.PositionID = (int)PositionComboBox.SelectedValue;
-            }
 
-            if (FemaleRBtn.IsChecked == true)
-            {
-                currentPeople.Gender = "Ж";
-            }
-            else
-            {
-                currentPeople.Gender = "М";
-            }
+            currentPeople.Gender = FemaleRBtn.IsChecked == true ? "Ж" : "М";
 
             if (errors.Length > 0)
             {
@@ -176,30 +148,24 @@ namespace vokzal
             }
 
             if (currentPeople.EmployeeID == 0)
-            {
                 VokzalEntities.GetContext().Employees.Add(currentPeople);
-            }
 
             try
             {
                 VokzalEntities.GetContext().SaveChanges();
                 SyncPositionHistory(oldPositionId, currentPeople);
                 MessageBox.Show("Информация сохранена");
-
                 Manager.MainFrame.GoBack();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message.ToString());
+                MessageBox.Show(ex.Message);
             }
         }
 
         private void SyncPositionHistory(int? oldPositionId, Employees employee)
         {
-            if (employee == null)
-            {
-                return;
-            }
+            if (employee == null) return;
 
             var data = HrDataService.Load();
             var employeeHistory = data.PositionHistory
@@ -223,15 +189,11 @@ namespace vokzal
             }
 
             if (oldPositionId.HasValue && oldPositionId.Value == employee.PositionID)
-            {
                 return;
-            }
 
             var openRecord = employeeHistory.LastOrDefault(p => p.EndDate == null);
             if (openRecord != null)
-            {
                 openRecord.EndDate = DateTime.Today.AddDays(-1);
-            }
 
             var currentPosition = VokzalEntities.GetContext().Positions.FirstOrDefault(p => p.PositionID == employee.PositionID);
             data.PositionHistory.Add(new PositionHistoryRecord

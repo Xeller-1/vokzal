@@ -10,17 +10,17 @@ namespace vokzal
 {
     public partial class AddEditCrewPage : Page
     {
-        private static readonly string[] RestrictedPositionNames =
+        private static readonly string[] RestrictedPositionKeywords =
         {
-            "Охранник",
-            "Начальник вокзала",
-            "Кассир",
-            "Ремонтник подвижного состава",
-            "Ремонтник путей",
-            "Работник справочной службы",
-            "Работник службы подготовки составов",
-            "Диспетчер",
-            "Дежурный по станции"
+            "охран",
+            "начальник вокзал",
+            "кассир",
+            "ремонтник подвижн",
+            "ремонтник пут",
+            "справочн",
+            "подготовк состав",
+            "диспетчер",
+            "дежурн по станции"
         };
 
         private readonly int? _editingTrainId;
@@ -81,10 +81,16 @@ namespace vokzal
 
         private bool IsAllowedCrewEmployee(Employees employee)
         {
-            var positionName = employee.Positions?.PositionName?.Trim();
-            return !string.IsNullOrWhiteSpace(positionName)
-                   && !RestrictedPositionNames.Any(r =>
-                       string.Equals(r, positionName, StringComparison.OrdinalIgnoreCase));
+            var positionName = (employee.Positions?.PositionName ?? string.Empty)
+                .Trim()
+                .ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(positionName))
+            {
+                return false;
+            }
+
+            return !RestrictedPositionKeywords.Any(positionName.Contains);
         }
 
         private void RefreshMembersList()
@@ -153,6 +159,12 @@ namespace vokzal
                 errors.AppendLine("Добавьте минимум одного сотрудника в бригаду");
             }
 
+            var invalidMembers = _selectedMembers.Where(m => !IsAllowedCrewEmployee(m)).ToList();
+            if (invalidMembers.Any())
+            {
+                errors.AppendLine("В составе есть сотрудники с должностями, запрещенными для поездной бригады");
+            }
+
             if (errors.Length > 0)
             {
                 MessageBox.Show(errors.ToString(), "Ошибка валидации");
@@ -195,7 +207,7 @@ namespace vokzal
 
                 context.SaveChanges();
                 MessageBox.Show("Состав бригады сохранен", "Успех");
-                Manager.MainFrame.GoBack();
+                Manager.MainFrame.Navigate(new CrewManagementPage());
             }
             catch (Exception ex)
             {
@@ -232,7 +244,7 @@ namespace vokzal
                 context.TrainCrews.RemoveRange(members);
                 context.SaveChanges();
                 MessageBox.Show("Бригада удалена", "Успех");
-                Manager.MainFrame.GoBack();
+                Manager.MainFrame.Navigate(new CrewManagementPage());
             }
             catch (Exception ex)
             {
