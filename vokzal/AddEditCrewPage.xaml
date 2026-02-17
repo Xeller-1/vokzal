@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="Добавление/Редактирование бригады">
 
-    <Grid Margin="10">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -18,31 +18,53 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="170"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="ID бригады:" Margin="5" VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentCrew.CrewID}" Margin="5" VerticalAlignment="Center" 
-                          FontWeight="Bold" Foreground="Blue"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Поезд:" Margin="5" VerticalAlignment="Center"/>
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="TrainComboBox" Margin="5"
+                          DisplayMemberPath="TrainNumber" SelectedValuePath="TrainID"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Сотрудник:" Margin="5" VerticalAlignment="Center"/>
-                <ComboBox Grid.Row="1" Grid.Column="1" Name="EmployeeComboBox" Margin="5" Height="25"
-                         DisplayMemberPath="FullName" SelectedValuePath="EmployeeID"
-                         SelectedValue="{Binding CurrentCrew.EmployeeID}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Добавить сотрудника:" Margin="5" VerticalAlignment="Center"/>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="5">
+                    <ComboBox Name="EmployeeComboBox" Width="420"
+                              DisplayMemberPath="FullName" SelectedValuePath="EmployeeID"/>
+                    <Button Content="+" Click="AddMemberBtn_Click" Width="40" Margin="8,0,0,0" Background="#16A34A"/>
+                </StackPanel>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Поезд:" Margin="5" VerticalAlignment="Center"/>
-                <ComboBox Grid.Row="2" Grid.Column="1" Name="TrainComboBox" Margin="5" Height="25"
-                         DisplayMemberPath="TrainNumber" SelectedValuePath="TrainID"
-                         SelectedValue="{Binding CurrentCrew.TrainID}"/>
+                <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Margin="5,4,5,8" Foreground="#6B7280"
+                           Text="Недоступные для поездной бригады должности автоматически скрыты."/>
+
+                <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="8" Padding="8" Background="#F9FAFB">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Состав бригады" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ListView Name="MembersListView" Grid.Row="1">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ФИО" DisplayMemberBinding="{Binding FullName}" Width="320"/>
+                                    <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding Positions.PositionName}" Width="220"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </Border>
             </Grid>
         </GroupBox>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
-            <Button Name="SaveBtn" Content="Сохранить" Click="SaveBtn_Click" Width="100" Margin="5"/>
-            <Button Name="CancelBtn" Content="Отмена" Click="CancelBtn_Click" Width="100" Margin="5"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Button Name="RemoveMemberBtn" Content="Удалить сотрудника" Click="RemoveMemberBtn_Click" Width="170" Margin="5" Background="#DC2626"/>
+            <Button Name="SaveBtn" Content="Сохранить" Click="SaveBtn_Click" Width="120" Margin="5"/>
+            <Button Name="DeleteCrewBtn" Content="Удалить бригаду" Click="DeleteCrewBtn_Click" Width="140" Margin="5" Background="#991B1B" Foreground="White"/>
+            <Button Name="CancelBtn" Content="Назад" Click="CancelBtn_Click" Width="120" Margin="5" Background="#6B7280"/>
         </StackPanel>
     </Grid>
 </Page>

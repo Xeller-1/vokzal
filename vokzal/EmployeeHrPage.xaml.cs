@@ -14,8 +14,6 @@ namespace vokzal
         {
             InitializeComponent();
             _employee = employee;
-            PositionCombo.ItemsSource = VokzalEntities.GetContext().Positions.ToList();
-            PositionStartDatePicker.SelectedDate = _employee.HireDate.Date;
             VacationStartDatePicker.SelectedDate = DateTime.Today;
             VacationEndDatePicker.SelectedDate = DateTime.Today.AddDays(14);
             BindHeader();
@@ -33,6 +31,7 @@ namespace vokzal
         {
             var data = HrDataService.Load();
             EnsureInitialPositionHistory(data);
+            SyncCurrentPositionChange(data);
 
             PositionHistoryList.ItemsSource = data.PositionHistory
                 .Where(p => p.EmployeeId == _employee.EmployeeID)
@@ -68,45 +67,34 @@ namespace vokzal
             HrDataService.Save(data);
         }
 
-        private void AddPositionHistory_Click(object sender, RoutedEventArgs e)
+        private void SyncCurrentPositionChange(HrDataContainer data)
         {
-            if (PositionCombo.SelectedItem == null || PositionStartDatePicker.SelectedDate == null)
-            {
-                MessageBox.Show("Выберите должность и дату начала", "Внимание");
-                return;
-            }
-
-            var selectedPosition = (Positions)PositionCombo.SelectedItem;
-            var startDate = PositionStartDatePicker.SelectedDate.Value;
-            var data = HrDataService.Load();
-
             var openRecord = data.PositionHistory
                 .Where(p => p.EmployeeId == _employee.EmployeeID && p.EndDate == null)
                 .OrderByDescending(p => p.StartDate)
                 .FirstOrDefault();
 
-            if (openRecord != null)
+            if (openRecord == null || openRecord.PositionId == _employee.PositionID)
             {
-                if (startDate <= openRecord.StartDate)
-                {
-                    MessageBox.Show("Дата новой должности должна быть позже предыдущей", "Внимание");
-                    return;
-                }
+                return;
+            }
 
-                openRecord.EndDate = startDate.AddDays(-1);
+            var today = DateTime.Today;
+            if (openRecord.StartDate.Date <= today)
+            {
+                openRecord.EndDate = today.AddDays(-1);
             }
 
             data.PositionHistory.Add(new PositionHistoryRecord
             {
                 EmployeeId = _employee.EmployeeID,
-                PositionId = selectedPosition.PositionID,
-                PositionName = selectedPosition.PositionName,
-                StartDate = startDate
+                PositionId = _employee.PositionID,
+                PositionName = _employee.Positions?.PositionName ?? "Не указано",
+                StartDate = today,
+                EndDate = null
             });
 
             HrDataService.Save(data);
-            MessageBox.Show("История должностей обновлена", "Успех");
-            RefreshData();
         }
 
         private void AddVacation_Click(object sender, RoutedEventArgs e)
@@ -128,6 +116,12 @@ namespace vokzal
             if (HrDataService.HasVacationOverlap(_employee.EmployeeID, startDate, endDate))
             {
                 MessageBox.Show("На выбранный период уже есть отпуск", "Внимание");
+                return;
+            }
+
+            if (HrDataService.WouldLeavePositionWithoutStaff(_employee.PositionID, _employee.EmployeeID, startDate, endDate))
+            {
+                MessageBox.Show("На этот период по должности не останется сотрудников на смене. Выберите другие даты отпуска.", "Внимание");
                 return;
             }
 

@@ -16,22 +16,18 @@
         <ListView Name="CrewListView" Grid.Row="1" Margin="0,0,0,10">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Сотрудник" DisplayMemberBinding="{Binding Employees.FullName}" Width="200"/>
-                    <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding Employees.Positions.PositionName}" Width="180"/>
-                    <GridViewColumn Header="Поезд" DisplayMemberBinding="{Binding Trains.TrainNumber}" Width="100"/>
-                    <GridViewColumn Header="Телефон" DisplayMemberBinding="{Binding Employees.Phone}" Width="120"/>
-                    <GridViewColumn Header="Опыт" DisplayMemberBinding="{Binding Employees.Experience}" Width="80"/>
+                    <GridViewColumn Header="Поезд" DisplayMemberBinding="{Binding TrainNumber}" Width="120"/>
+                    <GridViewColumn Header="Бригада" DisplayMemberBinding="{Binding CrewTitle}" Width="180"/>
+                    <GridViewColumn Header="Состав сотрудников" DisplayMemberBinding="{Binding MembersSummary}" Width="520"/>
+                    <GridViewColumn Header="Кол-во" DisplayMemberBinding="{Binding MembersCount}" Width="80"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Name="AddCrewBtn" Content="Добавить" Click="AddCrewBtn_Click" Width="100" Margin="5"
-                   Background="#4CAF50" Foreground="White"/>
-            <Button Name="EditCrewBtn" Content="Редактировать" Click="EditCrewBtn_Click" Width="100" Margin="5"
-                   Background="#2196F3" Foreground="White"/>
-            <Button Name="DeleteCrewBtn" Content="Удалить" Click="DeleteCrewBtn_Click" Width="100" Margin="5"
-                   Background="#f44336" Foreground="White"/>
+            <Button Name="AddCrewBtn" Content="Добавить бригаду" Click="AddCrewBtn_Click" Width="150" Margin="5" Background="#4CAF50" Foreground="White"/>
+            <Button Name="EditCrewBtn" Content="Состав бригады" Click="EditCrewBtn_Click" Width="150" Margin="5" Background="#2196F3" Foreground="White"/>
+            <Button Name="DeleteCrewBtn" Content="Удалить бригаду" Click="DeleteCrewBtn_Click" Width="150" Margin="5" Background="#f44336" Foreground="White"/>
         </StackPanel>
     </Grid>
 </Page>

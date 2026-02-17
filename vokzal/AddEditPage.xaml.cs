@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -56,6 +57,13 @@ namespace vokzal
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
             StringBuilder errors = new StringBuilder();
+            var oldPositionId = currentPeople.EmployeeID == 0
+                ? (int?)null
+                : VokzalEntities.GetContext().Employees
+                    .AsNoTracking()
+                    .Where(x => x.EmployeeID == currentPeople.EmployeeID)
+                    .Select(x => (int?)x.PositionID)
+                    .FirstOrDefault();
 
             // Проверки ФИО
             if (string.IsNullOrWhiteSpace(currentPeople.LastName))
@@ -175,6 +183,7 @@ namespace vokzal
             try
             {
                 VokzalEntities.GetContext().SaveChanges();
+                SyncPositionHistory(oldPositionId, currentPeople);
                 MessageBox.Show("Информация сохранена");
 
                 Manager.MainFrame.GoBack();
@@ -183,6 +192,58 @@ namespace vokzal
             {
                 MessageBox.Show(ex.Message.ToString());
             }
+        }
+
+        private void SyncPositionHistory(int? oldPositionId, Employees employee)
+        {
+            if (employee == null)
+            {
+                return;
+            }
+
+            var data = HrDataService.Load();
+            var employeeHistory = data.PositionHistory
+                .Where(p => p.EmployeeId == employee.EmployeeID)
+                .OrderBy(p => p.StartDate)
+                .ToList();
+
+            if (!employeeHistory.Any())
+            {
+                var position = VokzalEntities.GetContext().Positions.FirstOrDefault(p => p.PositionID == employee.PositionID);
+                data.PositionHistory.Add(new PositionHistoryRecord
+                {
+                    EmployeeId = employee.EmployeeID,
+                    PositionId = employee.PositionID,
+                    PositionName = position?.PositionName ?? "Не указано",
+                    StartDate = employee.HireDate.Date,
+                    EndDate = null
+                });
+                HrDataService.Save(data);
+                return;
+            }
+
+            if (oldPositionId.HasValue && oldPositionId.Value == employee.PositionID)
+            {
+                return;
+            }
+
+            var openRecord = employeeHistory.LastOrDefault(p => p.EndDate == null);
+            if (openRecord != null)
+            {
+                openRecord.EndDate = DateTime.Today.AddDays(-1);
+            }
+
+            var currentPosition = VokzalEntities.GetContext().Positions.FirstOrDefault(p => p.PositionID == employee.PositionID);
+            data.PositionHistory.Add(new PositionHistoryRecord
+            {
+                EmployeeId = employee.EmployeeID,
+                PositionId = employee.PositionID,
+                PositionName = currentPosition?.PositionName ?? "Не указано",
+                StartDate = DateTime.Today,
+                EndDate = null
+            });
+
+            HrDataService.Save(data);
         }
 
         private void ChangePhoto_Click(object sender, RoutedEventArgs e)
