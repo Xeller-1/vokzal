@@ -34,8 +34,8 @@ namespace vokzal
                     .Select(g => new CrewListItem
                     {
                         TrainId = g.Key,
-                        TrainNumber = g.First().Trains?.TrainNumber ?? "Неизвестно",
-                        CrewTitle = $"Бригада поезда {g.First().Trains?.TrainNumber}",
+                        TrainNumber = g.First().Trains != null ? g.First().Trains.TrainNumber.ToString() : "Неизвестно",
+                        CrewTitle = $"Бригада поезда {(g.First().Trains != null ? g.First().Trains.TrainNumber.ToString() : "?")}",
                         MembersCount = g.Count(),
                         MembersSummary = string.Join(", ", g
                             .OrderBy(x => x.Employees?.LastName)

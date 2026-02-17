@@ -174,8 +174,8 @@ namespace vokzal
                 if (employeesInOtherCrews.Any())
                 {
                     var names = context.Employees
-                        .Where(e => employeesInOtherCrews.Contains(e.EmployeeID))
-                        .Select(e => e.LastName + " " + e.FirstName)
+                        .Where(emp => employeesInOtherCrews.Contains(emp.EmployeeID))
+                        .Select(emp => emp.LastName + " " + emp.FirstName)
                         .ToList();
                     MessageBox.Show("Некоторые сотрудники уже состоят в другой бригаде:\n" + string.Join("\n", names), "Внимание");
                     return;
