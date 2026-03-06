@@ -31,10 +31,11 @@ namespace vokzal
             try
             {
                 var context = VokzalEntities.GetContext();
-                var sickLeaveEmployeeIds = SickLeaveManager.GetSickLeaveEmployeeIds();
 
                 // Загружаем данные через Entity Framework
                 var employees = context.Employees.ToList();
+                SickLeaveManager.CleanupUnknownEmployees(employees.Select(emp => emp.EmployeeID));
+                var sickLeaveEmployeeIds = SickLeaveManager.GetSickLeaveEmployeeIds();
                 var positions = context.Positions.ToList();
                 var documents = context.EmployeeDocuments.ToList();
                 var educations = context.Education.ToList();
@@ -261,65 +262,97 @@ namespace vokzal
 
         private void OpenSickLeaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            var employee = GetSelectedEmployee();
-            if (employee == null)
+            try
             {
-                MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
-                return;
-            }
+                var employee = GetSelectedEmployee();
+                if (employee == null)
+                {
+                    MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
+                    return;
+                }
 
-            if (SickLeaveManager.IsOnSickLeave(employee.EmployeeID))
-            {
-                MessageBox.Show("У выбранного сотрудника уже открыт больничный.", "Внимание");
-                return;
-            }
+                var context = VokzalEntities.GetContext();
+                var actualEmployee = context.Employees.FirstOrDefault(x => x.EmployeeID == employee.EmployeeID);
+                if (actualEmployee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден. Обновите список и повторите попытку.", "Ошибка");
+                    UpdateServices();
+                    return;
+                }
 
-            if (MessageBox.Show($"Открыть больничный для сотрудника {employee.FullName}?", "Подтверждение",
-                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-            {
-                return;
-            }
+                if (SickLeaveManager.IsOnSickLeave(actualEmployee.EmployeeID))
+                {
+                    MessageBox.Show("У выбранного сотрудника уже открыт больничный.", "Внимание");
+                    return;
+                }
 
-            if (SickLeaveManager.OpenSickLeave(employee.EmployeeID))
-            {
-                UpdateServices();
-                MessageBox.Show("Больничный успешно открыт.", "Успех");
+                if (MessageBox.Show($"Открыть больничный для сотрудника {actualEmployee.FullName}?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                if (SickLeaveManager.OpenSickLeave(actualEmployee.EmployeeID))
+                {
+                    UpdateServices();
+                    MessageBox.Show("Больничный успешно открыт.", "Успех");
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось открыть больничный. Повторите попытку.", "Ошибка");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Не удалось открыть больничный. Повторите попытку.", "Ошибка");
+                MessageBox.Show($"Ошибка при открытии больничного: {ex.Message}", "Ошибка");
             }
         }
 
         private void CloseSickLeaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            var employee = GetSelectedEmployee();
-            if (employee == null)
+            try
             {
-                MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
-                return;
-            }
+                var employee = GetSelectedEmployee();
+                if (employee == null)
+                {
+                    MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
+                    return;
+                }
 
-            if (!SickLeaveManager.IsOnSickLeave(employee.EmployeeID))
-            {
-                MessageBox.Show("У выбранного сотрудника нет открытого больничного.", "Внимание");
-                return;
-            }
+                var context = VokzalEntities.GetContext();
+                var actualEmployee = context.Employees.FirstOrDefault(x => x.EmployeeID == employee.EmployeeID);
+                if (actualEmployee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден. Обновите список и повторите попытку.", "Ошибка");
+                    UpdateServices();
+                    return;
+                }
 
-            if (MessageBox.Show($"Закрыть больничный для сотрудника {employee.FullName}?", "Подтверждение",
-                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-            {
-                return;
-            }
+                if (!SickLeaveManager.IsOnSickLeave(actualEmployee.EmployeeID))
+                {
+                    MessageBox.Show("У выбранного сотрудника нет открытого больничного.", "Внимание");
+                    return;
+                }
 
-            if (SickLeaveManager.CloseSickLeave(employee.EmployeeID))
-            {
-                UpdateServices();
-                MessageBox.Show("Больничный успешно закрыт.", "Успех");
+                if (MessageBox.Show($"Закрыть больничный для сотрудника {actualEmployee.FullName}?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                if (SickLeaveManager.CloseSickLeave(actualEmployee.EmployeeID))
+                {
+                    UpdateServices();
+                    MessageBox.Show("Больничный успешно закрыт.", "Успех");
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось закрыть больничный. Повторите попытку.", "Ошибка");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Не удалось закрыть больничный. Повторите попытку.", "Ошибка");
+                MessageBox.Show($"Ошибка при закрытии больничного: {ex.Message}", "Ошибка");
             }
         }
 

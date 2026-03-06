@@ -2,14 +2,88 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace vokzal
 {
     internal static class SickLeaveManager
     {
-        private static readonly string StoragePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sick-leaves.txt");
+        private static readonly object SyncRoot = new object();
+        private const string StorageFileName = "sick-leaves.txt";
+
+        private static string StoragePath
+        {
+            get
+            {
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, StorageFileName);
+            }
+        }
 
         public static HashSet<int> GetSickLeaveEmployeeIds()
+        {
+            lock (SyncRoot)
+            {
+                return LoadInternal();
+            }
+        }
+
+        public static bool IsOnSickLeave(int employeeId)
+        {
+            if (employeeId <= 0) return false;
+            return GetSickLeaveEmployeeIds().Contains(employeeId);
+        }
+
+        public static bool OpenSickLeave(int employeeId)
+        {
+            if (employeeId <= 0) return false;
+
+            lock (SyncRoot)
+            {
+                var ids = LoadInternal();
+                if (!ids.Add(employeeId))
+                {
+                    return false;
+                }
+
+                SaveInternal(ids);
+                return true;
+            }
+        }
+
+        public static bool CloseSickLeave(int employeeId)
+        {
+            if (employeeId <= 0) return false;
+
+            lock (SyncRoot)
+            {
+                var ids = LoadInternal();
+                if (!ids.Remove(employeeId))
+                {
+                    return false;
+                }
+
+                SaveInternal(ids);
+                return true;
+            }
+        }
+
+        public static void CleanupUnknownEmployees(IEnumerable<int> existingEmployeeIds)
+        {
+            if (existingEmployeeIds == null)
+            {
+                return;
+            }
+
+            lock (SyncRoot)
+            {
+                var existingIds = new HashSet<int>(existingEmployeeIds.Where(id => id > 0));
+                var ids = LoadInternal();
+                ids.RemoveWhere(id => !existingIds.Contains(id));
+                SaveInternal(ids);
+            }
+        }
+
+        private static HashSet<int> LoadInternal()
         {
             try
             {
@@ -18,14 +92,19 @@ namespace vokzal
                     return new HashSet<int>();
                 }
 
-                return new HashSet<int>(
-                    File.ReadAllLines(StoragePath)
-                        .Select(line =>
-                        {
-                            int employeeId;
-                            return int.TryParse(line, out employeeId) ? employeeId : -1;
-                        })
-                        .Where(id => id > 0));
+                var content = File.ReadAllLines(StoragePath, Encoding.UTF8);
+                var parsed = new HashSet<int>();
+
+                foreach (var line in content)
+                {
+                    int employeeId;
+                    if (int.TryParse(line?.Trim(), out employeeId) && employeeId > 0)
+                    {
+                        parsed.Add(employeeId);
+                    }
+                }
+
+                return parsed;
             }
             catch
             {
@@ -33,42 +112,16 @@ namespace vokzal
             }
         }
 
-        public static bool IsOnSickLeave(int employeeId)
+        private static void SaveInternal(IEnumerable<int> ids)
         {
-            return GetSickLeaveEmployeeIds().Contains(employeeId);
-        }
+            var normalized = (ids ?? Enumerable.Empty<int>())
+                .Where(id => id > 0)
+                .Distinct()
+                .OrderBy(id => id)
+                .Select(id => id.ToString())
+                .ToArray();
 
-        public static bool OpenSickLeave(int employeeId)
-        {
-            if (employeeId <= 0) return false;
-
-            var ids = GetSickLeaveEmployeeIds();
-            if (!ids.Add(employeeId))
-            {
-                return false;
-            }
-
-            Save(ids);
-            return true;
-        }
-
-        public static bool CloseSickLeave(int employeeId)
-        {
-            if (employeeId <= 0) return false;
-
-            var ids = GetSickLeaveEmployeeIds();
-            if (!ids.Remove(employeeId))
-            {
-                return false;
-            }
-
-            Save(ids);
-            return true;
-        }
-
-        private static void Save(IEnumerable<int> ids)
-        {
-            File.WriteAllLines(StoragePath, ids.Distinct().OrderBy(id => id).Select(id => id.ToString()));
+            File.WriteAllLines(StoragePath, normalized, Encoding.UTF8);
         }
     }
 }
