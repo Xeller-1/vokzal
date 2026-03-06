@@ -60,6 +60,17 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ListView Name="ServiceListView" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       BorderThickness="0" Background="Transparent">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Opacity" Value="1"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOnSickLeave}" Value="True">
+                                <Setter Property="Opacity" Value="0.65"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="#ddd" BorderThickness="0,0,0,2" Padding="20" Margin="0,8,10,8" Background="White"
@@ -97,6 +108,18 @@
                                 <StackPanel Grid.Column="1" Margin="0,0,20,0">
                                     <TextBlock Text="{Binding Employee.FullName, Mode=OneWay}" 
                                                FontSize="16" FontWeight="Bold" Margin="0,0,0,6" Foreground="#2c3e50"/>
+                                    <TextBlock Text="На больничном" Foreground="#7f8c8d" FontWeight="SemiBold" Margin="0,0,0,5" Visibility="Collapsed">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsOnSickLeave}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding Position.PositionName, Mode=OneWay}" 
                                                FontSize="14" Foreground="#3498db" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding Employee.Gender, Mode=OneWay}" 
@@ -222,6 +245,14 @@
                 <Button Name="ManageCrewsBtn" Content="Управление бригадами" Click="ManageCrewsBtn_Click"
                         Width="170" Height="35" FontSize="14" FontWeight="Bold"
                         Background="#2196F3" Foreground="White" Margin="0,0,20,0"/>
+
+                <Button Name="OpenSickLeaveBtn" Content="Открыть больничный" Click="OpenSickLeaveBtn_Click"
+                        Width="170" Height="35" FontSize="14" FontWeight="Bold"
+                        Background="#9b59b6" Foreground="White" Margin="0,0,10,0"/>
+
+                <Button Name="CloseSickLeaveBtn" Content="Закрыть больничный" Click="CloseSickLeaveBtn_Click"
+                        Width="170" Height="35" FontSize="14" FontWeight="Bold"
+                        Background="#7f8c8d" Foreground="White" Margin="0,0,20,0"/>
 
                 <TextBlock Text="Записей на странице:" VerticalAlignment="Center" Margin="20,0,10,0" FontSize="14"/>
                 <ComboBox Name="CountPeopleCBox" Width="100" Height="30" FontSize="12" 

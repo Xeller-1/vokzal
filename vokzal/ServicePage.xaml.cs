@@ -31,6 +31,7 @@ namespace vokzal
             try
             {
                 var context = VokzalEntities.GetContext();
+                var sickLeaveEmployeeIds = SickLeaveManager.GetSickLeaveEmployeeIds();
 
                 // Загружаем данные через Entity Framework
                 var employees = context.Employees.ToList();
@@ -44,7 +45,8 @@ namespace vokzal
                     Employee = emp,
                     Position = positions.FirstOrDefault(p => p.PositionID == emp.PositionID),
                     Document = documents.FirstOrDefault(d => d.EmployeeID == emp.EmployeeID),
-                    EducationList = educations.Where(e => e.EmployeeID == emp.EmployeeID).ToList()
+                    EducationList = educations.Where(e => e.EmployeeID == emp.EmployeeID).ToList(),
+                    IsOnSickLeave = sickLeaveEmployeeIds.Contains(emp.EmployeeID)
                 }).ToList();
 
                 // Фильтрация по должности
@@ -168,6 +170,7 @@ namespace vokzal
             var positions = context.Positions.ToList();
             var documents = context.EmployeeDocuments.ToList();
             var educations = context.Education.ToList();
+            var sickLeaveEmployeeIds = SickLeaveManager.GetSickLeaveEmployeeIds();
 
             foreach (var emp in pagedData)
             {
@@ -180,7 +183,8 @@ namespace vokzal
                     Employee = emp,
                     Position = position,
                     Document = document,
-                    EducationList = employeeEducations
+                    EducationList = employeeEducations,
+                    IsOnSickLeave = sickLeaveEmployeeIds.Contains(emp.EmployeeID)
                 });
             }
 
@@ -253,6 +257,77 @@ namespace vokzal
             {
                 Manager.MainFrame.Navigate(new EducationPage(employee));
             }
+        }
+
+        private void OpenSickLeaveBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var employee = GetSelectedEmployee();
+            if (employee == null)
+            {
+                MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
+                return;
+            }
+
+            if (SickLeaveManager.IsOnSickLeave(employee.EmployeeID))
+            {
+                MessageBox.Show("У выбранного сотрудника уже открыт больничный.", "Внимание");
+                return;
+            }
+
+            if (MessageBox.Show($"Открыть больничный для сотрудника {employee.FullName}?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            if (SickLeaveManager.OpenSickLeave(employee.EmployeeID))
+            {
+                UpdateServices();
+                MessageBox.Show("Больничный успешно открыт.", "Успех");
+            }
+            else
+            {
+                MessageBox.Show("Не удалось открыть больничный. Повторите попытку.", "Ошибка");
+            }
+        }
+
+        private void CloseSickLeaveBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var employee = GetSelectedEmployee();
+            if (employee == null)
+            {
+                MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
+                return;
+            }
+
+            if (!SickLeaveManager.IsOnSickLeave(employee.EmployeeID))
+            {
+                MessageBox.Show("У выбранного сотрудника нет открытого больничного.", "Внимание");
+                return;
+            }
+
+            if (MessageBox.Show($"Закрыть больничный для сотрудника {employee.FullName}?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            if (SickLeaveManager.CloseSickLeave(employee.EmployeeID))
+            {
+                UpdateServices();
+                MessageBox.Show("Больничный успешно закрыт.", "Успех");
+            }
+            else
+            {
+                MessageBox.Show("Не удалось закрыть больничный. Повторите попытку.", "Ошибка");
+            }
+        }
+
+        private Employees GetSelectedEmployee()
+        {
+            var selectedData = ServiceListView.SelectedItem;
+            var employeeProperty = selectedData?.GetType().GetProperty("Employee");
+            return employeeProperty?.GetValue(selectedData) as Employees;
         }
     }
 }

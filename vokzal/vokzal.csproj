@@ -109,6 +109,7 @@
     <Compile Include="ServicePage.xaml.cs">
       <DependentUpon>ServicePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SickLeaveManager.cs" />
     <Compile Include="sysdiagrams.cs">
       <DependentUpon>Vokzal.tt</DependentUpon>
     </Compile>
