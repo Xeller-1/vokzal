@@ -63,6 +63,34 @@ namespace vokzal
                 endDate >= v.StartDate);
         }
 
+
+        public static bool WouldLeavePositionWithoutStaff(int positionId, int employeeId, DateTime startDate, DateTime endDate)
+        {
+            var context = VokzalEntities.GetContext();
+            var employeeIdsByPosition = context.Employees
+                .Where(e => e.PositionID == positionId)
+                .Select(e => e.EmployeeID)
+                .ToList();
+
+            if (employeeIdsByPosition.Count <= 1)
+            {
+                return true;
+            }
+
+            var data = Load();
+            var onVacationSamePeriod = data.Vacations
+                .Where(v => employeeIdsByPosition.Contains(v.EmployeeId)
+                            && v.EmployeeId != employeeId
+                            && startDate <= v.EndDate
+                            && endDate >= v.StartDate)
+                .Select(v => v.EmployeeId)
+                .Distinct()
+                .Count();
+
+            var totalOnVacation = onVacationSamePeriod + 1;
+            return totalOnVacation >= employeeIdsByPosition.Count;
+        }
+
         private static void EnsureDataLocation()
         {
             Directory.CreateDirectory(UserDataDirectory);
