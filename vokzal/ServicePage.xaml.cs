@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,47 +8,20 @@ namespace vokzal
 {
     public partial class ServicePage : Page
     {
-        private const string AllPositionsLabel = "Все должности";
-
-        private List<EmployeeDisplayItem> _fullList = new List<EmployeeDisplayItem>();
-        private List<EmployeeDisplayItem> _filteredList = new List<EmployeeDisplayItem>();
-        private int _currentPage = 1;
-        private int _totalPages = 1;
+        int CountRecord;
+        private List<Employees> currentPageList = new List<Employees>();
+        private List<Employees> TableList;
 
         public ServicePage()
         {
             InitializeComponent();
-            ConfigureFilters();
+            LoadData();
             Sort.SelectedIndex = 0;
-            CountPeopleCBox.SelectedIndex = 3;
-            UpdateServices();
-        }
-
-        private void ConfigureFilters()
-        {
-            var context = VokzalEntities.GetContext();
-            var positions = context.Positions
-                .AsNoTracking()
-                .OrderBy(p => p.PositionName)
-                .ToList();
-
-            var filterItems = new List<PositionFilterItem>
-            {
-                new PositionFilterItem { PositionId = null, PositionName = AllPositionsLabel }
-            };
-            filterItems.AddRange(positions.Select(p => new PositionFilterItem
-            {
-                PositionId = p.PositionID,
-                PositionName = p.PositionName
-            }));
-
-            PositionBox.ItemsSource = filterItems;
-            PositionBox.DisplayMemberPath = "PositionName";
-            PositionBox.SelectedValuePath = "PositionId";
             PositionBox.SelectedIndex = 0;
+            CountPeopleCBox.SelectedIndex = 3;
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        private void LoadData()
         {
             UpdateServices();
         }
@@ -59,24 +31,70 @@ namespace vokzal
             try
             {
                 var context = VokzalEntities.GetContext();
-                var employees = context.Employees
-                    .AsNoTracking()
-                    .Include(e => e.Positions)
-                    .Include(e => e.EmployeeDocuments)
-                    .Include(e => e.Education)
-                    .ToList();
 
-                _fullList = employees.Select(emp => new EmployeeDisplayItem
+                // Загружаем данные через Entity Framework
+                var employees = context.Employees.ToList();
+                SickLeaveManager.CleanupUnknownEmployees(employees.Select(emp => emp.EmployeeID));
+                var sickLeaveEmployeeIds = SickLeaveManager.GetSickLeaveEmployeeIds();
+                var positions = context.Positions.ToList();
+                var documents = context.EmployeeDocuments.ToList();
+                var educations = context.Education.ToList();
+
+                // Создаем данные для отображения
+                var employeeData = employees.Select(emp => new
                 {
                     Employee = emp,
-                    Position = emp.Positions,
-                    Document = emp.EmployeeDocuments.FirstOrDefault(),
-                    EducationList = emp.Education.ToList()
+                    Position = positions.FirstOrDefault(p => p.PositionID == emp.PositionID),
+                    Document = documents.FirstOrDefault(d => d.EmployeeID == emp.EmployeeID),
+                    EducationList = educations.Where(e => e.EmployeeID == emp.EmployeeID).ToList(),
+                    IsOnSickLeave = sickLeaveEmployeeIds.Contains(emp.EmployeeID)
                 }).ToList();
 
-                _currentPage = 1;
-                _filteredList = ApplyFilters(_fullList);
-                ApplyPagination();
+                // Фильтрация по должности
+                if (PositionBox.SelectedIndex > 0)
+                {
+                    string selectedPosition = ((ComboBoxItem)PositionBox.SelectedItem).Content.ToString();
+                    employeeData = employeeData.Where(x => x.Position?.PositionName == selectedPosition).ToList();
+                }
+
+                // Сортировка
+                if (Sort.SelectedItem != null)
+                {
+                    string selectedSortOption = ((ComboBoxItem)Sort.SelectedItem).Content.ToString();
+                    switch (selectedSortOption)
+                    {
+                        case "По фамилии (А-Я)":
+                            employeeData = employeeData.OrderBy(x => x.Employee.LastName).ToList(); break;
+                        case "По фамилии (Я-А)":
+                            employeeData = employeeData.OrderByDescending(x => x.Employee.LastName).ToList(); break;
+                        case "По опыту (возрастание)":
+                            employeeData = employeeData.OrderBy(x => x.Employee.Experience ?? 0).ToList(); break;
+                        case "По опыту (убывание)":
+                            employeeData = employeeData.OrderByDescending(x => x.Employee.Experience ?? 0).ToList(); break;
+                        case "По возрасту (возрастание)":
+                            employeeData = employeeData.OrderBy(x => x.Employee.Age).ToList(); break;
+                        case "По возрасту (убывание)":
+                            employeeData = employeeData.OrderByDescending(x => x.Employee.Age).ToList(); break;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(Search.Text))
+                {
+                    string searchText = Search.Text.ToLower();
+                    employeeData = employeeData.Where(x =>
+                        (x.Employee.FullName ?? "").ToLower().Contains(searchText) ||
+                        (x.Employee.Phone ?? "").ToLower().Contains(searchText) ||
+                        (x.Employee.Address ?? "").ToLower().Contains(searchText) ||
+                        (x.Employee.Registration ?? "").ToLower().Contains(searchText) ||
+                        (x.Document?.PassportData ?? "").ToLower().Contains(searchText) ||
+                        (x.Document?.INN ?? "").ToLower().Contains(searchText) ||
+                        (x.EducationList.Any(e => e.InstitutionName.ToLower().Contains(searchText)))
+                    ).ToList();
+                }
+
+                ServiceListView.ItemsSource = employeeData;
+                TableList = employeeData.Select(x => x.Employee).ToList();
+                DisplayRecordsPerPage();
             }
             catch (Exception ex)
             {
@@ -84,124 +102,26 @@ namespace vokzal
             }
         }
 
-        private List<EmployeeDisplayItem> ApplyFilters(List<EmployeeDisplayItem> source)
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            var data = source;
-
-            if (PositionBox.SelectedItem is PositionFilterItem selectedPosition && selectedPosition.PositionId.HasValue)
-            {
-                data = data.Where(x => x.Employee.PositionID == selectedPosition.PositionId.Value).ToList();
-            }
-
-            if (Sort.SelectedItem is ComboBoxItem sortItem)
-            {
-                switch (sortItem.Content.ToString())
-                {
-                    case "По фамилии (А-Я)":
-                        data = data.OrderBy(x => x.Employee.LastName).ToList();
-                        break;
-                    case "По фамилии (Я-А)":
-                        data = data.OrderByDescending(x => x.Employee.LastName).ToList();
-                        break;
-                    case "По опыту (возрастание)":
-                        data = data.OrderBy(x => x.Employee.Experience ?? 0).ToList();
-                        break;
-                    case "По опыту (убывание)":
-                        data = data.OrderByDescending(x => x.Employee.Experience ?? 0).ToList();
-                        break;
-                    case "По возрасту (возрастание)":
-                        data = data.OrderBy(x => x.Employee.Age).ToList();
-                        break;
-                    case "По возрасту (убывание)":
-                        data = data.OrderByDescending(x => x.Employee.Age).ToList();
-                        break;
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(Search.Text))
-            {
-                var searchText = Search.Text.ToLower();
-                data = data.Where(x =>
-                    (x.Employee.FullName ?? string.Empty).ToLower().Contains(searchText) ||
-                    (x.Employee.Phone ?? string.Empty).ToLower().Contains(searchText) ||
-                    (x.Employee.Address ?? string.Empty).ToLower().Contains(searchText) ||
-                    (x.Employee.Registration ?? string.Empty).ToLower().Contains(searchText) ||
-                    (x.Document?.PassportData ?? string.Empty).ToLower().Contains(searchText) ||
-                    (x.Document?.INN ?? string.Empty).ToLower().Contains(searchText) ||
-                    x.EducationList.Any(e => (e.InstitutionName ?? string.Empty).ToLower().Contains(searchText))
-                ).ToList();
-            }
-
-            return data;
-        }
-
-        private void ApplyPagination()
-        {
-            if (_filteredList == null)
-            {
-                ServiceListView.ItemsSource = null;
-                RecordsInfoText.Text = "Найдено сотрудников: 0";
-                PageInfoText.Text = "Страница 1/1";
-                PrevPageBtn.IsEnabled = false;
-                NextPageBtn.IsEnabled = false;
-                return;
-            }
-
-            var recordsCount = _filteredList.Count;
-            var itemsPerPage = GetItemsPerPage(recordsCount);
-
-            if (itemsPerPage <= 0)
-            {
-                itemsPerPage = recordsCount == 0 ? 1 : recordsCount;
-            }
-
-            _totalPages = Math.Max(1, (int)Math.Ceiling(recordsCount / (double)itemsPerPage));
-            if (_currentPage > _totalPages)
-            {
-                _currentPage = _totalPages;
-            }
-            if (_currentPage < 1)
-            {
-                _currentPage = 1;
-            }
-
-            var skip = (_currentPage - 1) * itemsPerPage;
-            var pagedData = _filteredList.Skip(skip).Take(itemsPerPage).ToList();
-
-            ServiceListView.ItemsSource = pagedData;
-            RecordsInfoText.Text = $"Найдено сотрудников: {recordsCount}";
-            PageInfoText.Text = $"Страница {_currentPage}/{_totalPages}";
-            PrevPageBtn.IsEnabled = _currentPage > 1;
-            NextPageBtn.IsEnabled = _currentPage < _totalPages;
-        }
-
-        private int GetItemsPerPage(int recordsCount)
-        {
-            switch (CountPeopleCBox.SelectedIndex)
-            {
-                case 0:
-                    return 5;
-                case 1:
-                    return 15;
-                case 2:
-                    return 30;
-                default:
-                    return recordsCount;
-            }
+            UpdateServices();
         }
 
         private void DeleteBtn_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var currentService = ExtractEmployee(sender);
-                if (currentService == null)
-                {
-                    return;
-                }
+                var button = sender as Button;
+                var employeeData = button?.Tag;
+                var employeeProperty = employeeData?.GetType().GetProperty("Employee");
+                var currentService = employeeProperty?.GetValue(employeeData) as Employees;
+
+                if (currentService == null) return;
 
                 var context = VokzalEntities.GetContext();
 
+                // Проверяем есть ли сотрудник в бригадах
                 if (currentService.TrainCrews.Any())
                 {
                     MessageBox.Show("Невозможно выполнить удаление, так как сотрудник прикреплен к бригаде!", "Внимание");
@@ -211,7 +131,7 @@ namespace vokzal
                 if (MessageBox.Show("Вы точно хотите выполнить удаление?", "Внимание!",
                     MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
-                    context.Employees.Attach(currentService);
+                    // Удаляем сотрудника (каскадное удаление должно удалить связанные записи)
                     context.Employees.Remove(currentService);
                     context.SaveChanges();
 
@@ -225,17 +145,55 @@ namespace vokzal
             }
         }
 
-        private static Employees ExtractEmployee(object sender)
+        private void DisplayRecordsPerPage()
         {
-            var button = sender as Button;
-            var employeeData = button?.Tag as EmployeeDisplayItem;
-            return employeeData?.Employee;
-        }
+            currentPageList.Clear();
+            if (TableList == null) return;
 
+            CountRecord = TableList.Count;
+
+            int itemsPerPage = 5;
+            switch (CountPeopleCBox.SelectedIndex)
+            {
+                case 0: itemsPerPage = 5; break;
+                case 1: itemsPerPage = 15; break;
+                case 2: itemsPerPage = 30; break;
+                case 3: itemsPerPage = CountRecord; break;
+            }
+
+            // Берем только нужное количество записей
+            var pagedData = TableList.Take(itemsPerPage).ToList();
+
+            // Загружаем дополнительные данные для отображаемых записей
+            var displayData = new List<object>();
+
+            var context = VokzalEntities.GetContext();
+            var positions = context.Positions.ToList();
+            var documents = context.EmployeeDocuments.ToList();
+            var educations = context.Education.ToList();
+            var sickLeaveEmployeeIds = SickLeaveManager.GetSickLeaveEmployeeIds();
+
+            foreach (var emp in pagedData)
+            {
+                var position = positions.FirstOrDefault(p => p.PositionID == emp.PositionID);
+                var document = documents.FirstOrDefault(d => d.EmployeeID == emp.EmployeeID);
+                var employeeEducations = educations.Where(e => e.EmployeeID == emp.EmployeeID).ToList();
+
+                displayData.Add(new
+                {
+                    Employee = emp,
+                    Position = position,
+                    Document = document,
+                    EducationList = employeeEducations,
+                    IsOnSickLeave = sickLeaveEmployeeIds.Contains(emp.EmployeeID)
+                });
+            }
+
+            ServiceListView.ItemsSource = displayData;
+        }
         private void CountPeopleCBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _currentPage = 1;
-            ApplyPagination();
+            DisplayRecordsPerPage();
         }
 
         private void Addbtn_Click(object sender, RoutedEventArgs e)
@@ -245,7 +203,11 @@ namespace vokzal
 
         private void EditBtn_Click(object sender, RoutedEventArgs e)
         {
-            var employee = ExtractEmployee(sender);
+            var button = sender as Button;
+            var employeeData = button?.Tag;
+            var employeeProperty = employeeData?.GetType().GetProperty("Employee");
+            var employee = employeeProperty?.GetValue(employeeData) as Employees;
+
             if (employee != null)
             {
                 Manager.MainFrame.Navigate(new AddEditPage(employee));
@@ -254,23 +216,17 @@ namespace vokzal
 
         private void PositionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _currentPage = 1;
-            _filteredList = ApplyFilters(_fullList);
-            ApplyPagination();
+            UpdateServices();
         }
 
         private void SearchTBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            _currentPage = 1;
-            _filteredList = ApplyFilters(_fullList);
-            ApplyPagination();
+            UpdateServices();
         }
 
         private void Sort_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _currentPage = 1;
-            _filteredList = ApplyFilters(_fullList);
-            ApplyPagination();
+            UpdateServices();
         }
 
         private void ManageCrewsBtn_Click(object sender, RoutedEventArgs e)
@@ -280,7 +236,11 @@ namespace vokzal
 
         private void DocumentsBtn_Click(object sender, RoutedEventArgs e)
         {
-            var employee = ExtractEmployee(sender);
+            var button = sender as Button;
+            var employeeData = button?.Tag;
+            var employeeProperty = employeeData?.GetType().GetProperty("Employee");
+            var employee = employeeProperty?.GetValue(employeeData) as Employees;
+
             if (employee != null)
             {
                 Manager.MainFrame.Navigate(new EmployeeDocumentsPage(employee));
@@ -289,64 +249,118 @@ namespace vokzal
 
         private void EducationBtn_Click(object sender, RoutedEventArgs e)
         {
-            var employee = ExtractEmployee(sender);
+            var button = sender as Button;
+            var employeeData = button?.Tag;
+            var employeeProperty = employeeData?.GetType().GetProperty("Employee");
+            var employee = employeeProperty?.GetValue(employeeData) as Employees;
+
             if (employee != null)
             {
                 Manager.MainFrame.Navigate(new EducationPage(employee));
             }
         }
 
-        private void HrBtn_Click(object sender, RoutedEventArgs e)
+        private void OpenSickLeaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            var employee = ExtractEmployee(sender);
-            if (employee != null)
+            try
             {
-                Manager.MainFrame.Navigate(new EmployeeHrPage(employee));
+                var employee = GetSelectedEmployee();
+                if (employee == null)
+                {
+                    MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
+                    return;
+                }
+
+                var context = VokzalEntities.GetContext();
+                var actualEmployee = context.Employees.FirstOrDefault(x => x.EmployeeID == employee.EmployeeID);
+                if (actualEmployee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден. Обновите список и повторите попытку.", "Ошибка");
+                    UpdateServices();
+                    return;
+                }
+
+                if (SickLeaveManager.IsOnSickLeave(actualEmployee.EmployeeID))
+                {
+                    MessageBox.Show("У выбранного сотрудника уже открыт больничный.", "Внимание");
+                    return;
+                }
+
+                if (MessageBox.Show($"Открыть больничный для сотрудника {actualEmployee.FullName}?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                if (SickLeaveManager.OpenSickLeave(actualEmployee.EmployeeID))
+                {
+                    UpdateServices();
+                    MessageBox.Show("Больничный успешно открыт.", "Успех");
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось открыть больничный. Повторите попытку.", "Ошибка");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии больничного: {ex.Message}", "Ошибка");
             }
         }
 
-        private void ResetFiltersBtn_Click(object sender, RoutedEventArgs e)
+        private void CloseSickLeaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            Search.Text = string.Empty;
-            Sort.SelectedIndex = 0;
-            PositionBox.SelectedIndex = 0;
-            CountPeopleCBox.SelectedIndex = 3;
-
-            _currentPage = 1;
-            _filteredList = ApplyFilters(_fullList);
-            ApplyPagination();
-        }
-
-        private void PrevPageBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentPage > 1)
+            try
             {
-                _currentPage--;
-                ApplyPagination();
+                var employee = GetSelectedEmployee();
+                if (employee == null)
+                {
+                    MessageBox.Show("Выберите сотрудника в списке.", "Внимание");
+                    return;
+                }
+
+                var context = VokzalEntities.GetContext();
+                var actualEmployee = context.Employees.FirstOrDefault(x => x.EmployeeID == employee.EmployeeID);
+                if (actualEmployee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден. Обновите список и повторите попытку.", "Ошибка");
+                    UpdateServices();
+                    return;
+                }
+
+                if (!SickLeaveManager.IsOnSickLeave(actualEmployee.EmployeeID))
+                {
+                    MessageBox.Show("У выбранного сотрудника нет открытого больничного.", "Внимание");
+                    return;
+                }
+
+                if (MessageBox.Show($"Закрыть больничный для сотрудника {actualEmployee.FullName}?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                if (SickLeaveManager.CloseSickLeave(actualEmployee.EmployeeID))
+                {
+                    UpdateServices();
+                    MessageBox.Show("Больничный успешно закрыт.", "Успех");
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось закрыть больничный. Повторите попытку.", "Ошибка");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при закрытии больничного: {ex.Message}", "Ошибка");
             }
         }
 
-        private void NextPageBtn_Click(object sender, RoutedEventArgs e)
+        private Employees GetSelectedEmployee()
         {
-            if (_currentPage < _totalPages)
-            {
-                _currentPage++;
-                ApplyPagination();
-            }
-        }
-
-        private sealed class PositionFilterItem
-        {
-            public int? PositionId { get; set; }
-            public string PositionName { get; set; }
-        }
-
-        private sealed class EmployeeDisplayItem
-        {
-            public Employees Employee { get; set; }
-            public Positions Position { get; set; }
-            public EmployeeDocuments Document { get; set; }
-            public List<Education> EducationList { get; set; }
+            var selectedData = ServiceListView.SelectedItem;
+            var employeeProperty = selectedData?.GetType().GetProperty("Employee");
+            return employeeProperty?.GetValue(selectedData) as Employees;
         }
     }
 }
