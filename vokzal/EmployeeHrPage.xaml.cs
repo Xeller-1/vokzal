@@ -16,6 +16,7 @@ namespace vokzal
             _employee = employee;
             VacationStartDatePicker.SelectedDate = DateTime.Today;
             VacationEndDatePicker.SelectedDate = DateTime.Today.AddDays(14);
+            SickLeaveStartDatePicker.SelectedDate = DateTime.Today;
             BindHeader();
             RefreshData();
         }
@@ -42,6 +43,30 @@ namespace vokzal
                 .Where(v => v.EmployeeId == _employee.EmployeeID)
                 .OrderByDescending(v => v.StartDate)
                 .ToList();
+
+            var sickLeaves = data.SickLeaves
+                .Where(s => s.EmployeeId == _employee.EmployeeID)
+                .OrderByDescending(s => s.StartDate)
+                .Select(s => new SickLeaveViewModel
+                {
+                    Id = s.Id,
+                    StartDate = s.StartDate,
+                    EndDate = s.EndDate,
+                    Reason = s.Reason,
+                    StatusText = s.EndDate.HasValue ? "Закрыт" : "Открыт"
+                })
+                .ToList();
+
+            SickLeaveList.ItemsSource = sickLeaves;
+
+            var openSick = data.SickLeaves
+                .Where(s => s.EmployeeId == _employee.EmployeeID && !s.EndDate.HasValue)
+                .OrderByDescending(s => s.StartDate)
+                .FirstOrDefault();
+
+            SickStatusText.Text = openSick == null
+                ? "Статус: нет активного больничного"
+                : $"Статус: на больничном с {openSick.StartDate:dd.MM.yyyy}";
         }
 
         private void EnsureInitialPositionHistory(HrDataContainer data)
@@ -113,6 +138,13 @@ namespace vokzal
                 return;
             }
 
+            if (HrDataService.HasActiveSickLeave(_employee.EmployeeID, startDate) ||
+                HrDataService.HasActiveSickLeave(_employee.EmployeeID, endDate))
+            {
+                MessageBox.Show("Нельзя оформить отпуск, пока сотрудник на больничном", "Внимание");
+                return;
+            }
+
             if (HrDataService.HasVacationOverlap(_employee.EmployeeID, startDate, endDate))
             {
                 MessageBox.Show("На выбранный период уже есть отпуск", "Внимание");
@@ -156,6 +188,77 @@ namespace vokzal
             RefreshData();
         }
 
+        private void OpenSickLeave_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SickLeaveStartDatePicker.SelectedDate.HasValue)
+            {
+                MessageBox.Show("Укажите дату открытия больничного", "Внимание");
+                return;
+            }
+
+            var startDate = SickLeaveStartDatePicker.SelectedDate.Value.Date;
+            if (startDate < _employee.HireDate.Date)
+            {
+                MessageBox.Show("Дата больничного не может быть раньше даты приема", "Внимание");
+                return;
+            }
+
+            var data = HrDataService.Load();
+            var openSick = data.SickLeaves
+                .FirstOrDefault(s => s.EmployeeId == _employee.EmployeeID && !s.EndDate.HasValue);
+            if (openSick != null)
+            {
+                MessageBox.Show("У сотрудника уже открыт больничный", "Внимание");
+                return;
+            }
+
+            var hasVacationOverlap = data.Vacations.Any(v =>
+                v.EmployeeId == _employee.EmployeeID &&
+                startDate >= v.StartDate.Date &&
+                startDate <= v.EndDate.Date);
+            if (hasVacationOverlap)
+            {
+                MessageBox.Show("Нельзя открыть больничный в период уже оформленного отпуска", "Внимание");
+                return;
+            }
+
+            var reason = string.IsNullOrWhiteSpace(SickLeaveReasonTextBox.Text)
+                ? "Временная нетрудоспособность"
+                : SickLeaveReasonTextBox.Text.Trim();
+
+            data.SickLeaves.Add(new SickLeaveRecord
+            {
+                EmployeeId = _employee.EmployeeID,
+                StartDate = startDate,
+                EndDate = null,
+                Reason = reason,
+                OpenedBy = Environment.UserName
+            });
+
+            HrDataService.Save(data);
+            MessageBox.Show("Больничный открыт", "Успех");
+            RefreshData();
+        }
+
+        private void CloseSickLeave_Click(object sender, RoutedEventArgs e)
+        {
+            var data = HrDataService.Load();
+            var openSick = data.SickLeaves
+                .Where(s => s.EmployeeId == _employee.EmployeeID && !s.EndDate.HasValue)
+                .OrderByDescending(s => s.StartDate)
+                .FirstOrDefault();
+
+            if (openSick == null)
+            {
+                MessageBox.Show("У сотрудника нет открытого больничного", "Внимание");
+                return;
+            }
+
+            openSick.EndDate = DateTime.Today;
+            HrDataService.Save(data);
+            MessageBox.Show("Больничный закрыт", "Успех");
+            RefreshData();
+        }
 
         private void VacationList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -220,6 +323,15 @@ namespace vokzal
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             Manager.MainFrame.GoBack();
+        }
+
+        private sealed class SickLeaveViewModel
+        {
+            public Guid Id { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime? EndDate { get; set; }
+            public string Reason { get; set; }
+            public string StatusText { get; set; }
         }
     }
 }

@@ -60,6 +60,18 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="#D1D5DB" BorderThickness="1" Padding="20" Margin="0,8,6,8" Background="White" CornerRadius="10">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="White"/>
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsOnSickLeave}" Value="True">
+                                            <Setter Property="Background" Value="#ECEFF1"/>
+                                            <Setter Property="Opacity" Value="0.88"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid Margin="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150"/>
@@ -95,6 +107,7 @@
                                                FontSize="16" FontWeight="Bold" Margin="0,0,0,6" Foreground="#1F2937"/>
                                     <TextBlock Text="{Binding Position.PositionName, Mode=OneWay}"
                                                FontSize="14" Foreground="#D71920" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold" Foreground="#6B7280" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding Employee.Gender, Mode=OneWay}"
                                                FontSize="13" Margin="0,0,0,3"/>
                                     <TextBlock Text="{Binding Employee.Phone, Mode=OneWay}"

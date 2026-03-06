@@ -27,28 +27,24 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <GroupBox Header="История должностей" Grid.Column="0" Margin="0,0,8,0" Background="White" BorderBrush="#D1D5DB">
                 <Grid Margin="8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <ListView x:Name="PositionHistoryList" Grid.Row="0">
+                    <ListView x:Name="PositionHistoryList">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding PositionName}" Width="170"/>
-                                <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="100"/>
-                                <GridViewColumn Header="По" DisplayMemberBinding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                <GridViewColumn Header="Должность" DisplayMemberBinding="{Binding PositionName}" Width="165"/>
+                                <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="95"/>
+                                <GridViewColumn Header="По" DisplayMemberBinding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="95"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
                 </Grid>
             </GroupBox>
 
-            <GroupBox Header="Отпуска" Grid.Column="1" Margin="8,0,0,0" Background="White" BorderBrush="#D1D5DB">
+            <GroupBox Header="Отпуска" Grid.Column="1" Margin="8,0,8,0" Background="White" BorderBrush="#D1D5DB">
                 <Grid Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -61,19 +57,55 @@
                             <GridView>
                                 <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="90"/>
                                 <GridViewColumn Header="По" DisplayMemberBinding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="90"/>
-                                <GridViewColumn Header="Причина" DisplayMemberBinding="{Binding Reason}" Width="170"/>
+                                <GridViewColumn Header="Причина" DisplayMemberBinding="{Binding Reason}" Width="160"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
 
                     <TextBlock Grid.Row="1" Margin="0,6,0,6" Foreground="#6B7280"
-                               Text="Подсказка: дважды кликните по записи отпуска, чтобы открыть PDF-приказ"/>
+                               Text="Подсказка: двойной клик по отпуску открывает PDF-приказ"/>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,0">
-                        <DatePicker x:Name="VacationStartDatePicker" Width="130"/>
-                        <DatePicker x:Name="VacationEndDatePicker" Width="130" Margin="8,0,0,0"/>
-                        <TextBox x:Name="VacationReasonTextBox" Width="170" Margin="8,0,0,0"/>
-                        <Button Content="Добавить + PDF" Click="AddVacation_Click" Width="130" Margin="8,0,0,0" Background="#374151"/>
+                    <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <DatePicker x:Name="VacationStartDatePicker" Width="130"/>
+                            <DatePicker x:Name="VacationEndDatePicker" Width="130" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBox x:Name="VacationReasonTextBox" Width="190"/>
+                            <Button Content="Добавить + PDF" Click="AddVacation_Click" Width="130" Margin="8,0,0,0" Background="#374151"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Больничные" Grid.Column="2" Margin="8,0,0,0" Background="White" BorderBrush="#D1D5DB">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListView x:Name="SickLeaveList" Grid.Row="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="С" DisplayMemberBinding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="90"/>
+                                <GridViewColumn Header="По" DisplayMemberBinding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="90"/>
+                                <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding StatusText}" Width="95"/>
+                                <GridViewColumn Header="Причина" DisplayMemberBinding="{Binding Reason}" Width="120"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <TextBlock Grid.Row="1" x:Name="SickStatusText" Margin="0,6,0,6" Foreground="#6B7280" Text="Статус: нет активного больничного"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,4,0,0">
+                        <DatePicker x:Name="SickLeaveStartDatePicker" Width="130"/>
+                        <TextBox x:Name="SickLeaveReasonTextBox" Margin="0,8,0,0" ToolTip="Причина больничного"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Content="Открыть" Click="OpenSickLeave_Click" Width="120" Background="#B45309"/>
+                            <Button Content="Закрыть" Click="CloseSickLeave_Click" Width="120" Margin="8,0,0,0" Background="#6B7280"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </GroupBox>

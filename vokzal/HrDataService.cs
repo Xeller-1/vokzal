@@ -37,7 +37,13 @@ namespace vokzal
                 }
 
                 var serializer = new JavaScriptSerializer();
-                return serializer.Deserialize<HrDataContainer>(json) ?? new HrDataContainer();
+                var data = serializer.Deserialize<HrDataContainer>(json) ?? new HrDataContainer();
+
+                data.Vacations = data.Vacations ?? new System.Collections.Generic.List<VacationBooking>();
+                data.SickLeaves = data.SickLeaves ?? new System.Collections.Generic.List<SickLeaveRecord>();
+                data.PositionHistory = data.PositionHistory ?? new System.Collections.Generic.List<PositionHistoryRecord>();
+
+                return data;
             }
             catch
             {
@@ -63,6 +69,23 @@ namespace vokzal
                 endDate >= v.StartDate);
         }
 
+        public static bool HasActiveSickLeave(int employeeId, DateTime date)
+        {
+            var data = Load();
+            return data.SickLeaves.Any(s =>
+                s.EmployeeId == employeeId &&
+                s.StartDate.Date <= date.Date &&
+                (!s.EndDate.HasValue || s.EndDate.Value.Date >= date.Date));
+        }
+
+        public static SickLeaveRecord GetOpenSickLeave(int employeeId)
+        {
+            var data = Load();
+            return data.SickLeaves
+                .Where(s => s.EmployeeId == employeeId && !s.EndDate.HasValue)
+                .OrderByDescending(s => s.StartDate)
+                .FirstOrDefault();
+        }
 
         public static bool WouldLeavePositionWithoutStaff(int positionId, int employeeId, DateTime startDate, DateTime endDate)
         {
@@ -87,8 +110,17 @@ namespace vokzal
                 .Distinct()
                 .Count();
 
-            var totalOnVacation = onVacationSamePeriod + 1;
-            return totalOnVacation >= employeeIdsByPosition.Count;
+            var onSickSamePeriod = data.SickLeaves
+                .Where(s => employeeIdsByPosition.Contains(s.EmployeeId)
+                            && s.EmployeeId != employeeId
+                            && startDate <= (s.EndDate ?? DateTime.MaxValue)
+                            && endDate >= s.StartDate)
+                .Select(s => s.EmployeeId)
+                .Distinct()
+                .Count();
+
+            var totalUnavailable = onVacationSamePeriod + onSickSamePeriod + 1;
+            return totalUnavailable >= employeeIdsByPosition.Count;
         }
 
         private static void EnsureDataLocation()

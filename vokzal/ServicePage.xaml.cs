@@ -66,12 +66,21 @@ namespace vokzal
                     .Include(e => e.Education)
                     .ToList();
 
+                var hrData = HrDataService.Load();
+                var today = DateTime.Today;
+                var sickEmployeeIds = new HashSet<int>(hrData.SickLeaves
+                    .Where(sl => sl.StartDate.Date <= today && (!sl.EndDate.HasValue || sl.EndDate.Value.Date >= today))
+                    .Select(sl => sl.EmployeeId)
+                    .Distinct());
+
                 _fullList = employees.Select(emp => new EmployeeDisplayItem
                 {
                     Employee = emp,
                     Position = emp.Positions,
                     Document = emp.EmployeeDocuments.FirstOrDefault(),
-                    EducationList = emp.Education.ToList()
+                    EducationList = emp.Education.ToList(),
+                    IsOnSickLeave = sickEmployeeIds.Contains(emp.EmployeeID),
+                    StatusText = sickEmployeeIds.Contains(emp.EmployeeID) ? "На больничном" : "Активен"
                 }).ToList();
 
                 _currentPage = 1;
@@ -347,6 +356,8 @@ namespace vokzal
             public Positions Position { get; set; }
             public EmployeeDocuments Document { get; set; }
             public List<Education> EducationList { get; set; }
+            public bool IsOnSickLeave { get; set; }
+            public string StatusText { get; set; }
         }
     }
 }
